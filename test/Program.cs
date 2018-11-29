@@ -34,12 +34,14 @@ namespace StreamZIP
 
 
             // TRY TO LOCATE THE CENTRAL DIRECTORY STARTING FROM THE END OF THE FILE AND GOING BACK BY 256 BYTES EACH TIME
-            long directoryStart = -1;
+            int directoryOffset = -1;
+            int directorySize = -1;
+            short directoryEntries = -1;
             short locateTries = 1;
             long locateStart = contentLength - 22;
             long locateFinish = contentLength;
             var locateChunkSize = 256;
-            while (directoryStart == -1 && locateTries <= 4)
+            while (directoryOffset == -1 && locateTries <= 4)
             {
                Log($"Trying to found central directory. {locateTries} try");
 
@@ -51,7 +53,7 @@ namespace StreamZIP
 
                // TRY TO LOCATE THE CENTRAL DIRECTORY STARTING DEFINED BY
                // 50 4B 05 06
-               long pos = (byteArray.Length - 22);
+               int pos = (byteArray.Length - 22);
                while (pos >= 0)
                {
 
@@ -60,18 +62,22 @@ namespace StreamZIP
                       byteArray[pos + 2] == 0x05 &&
                       byteArray[pos + 3] == 0x06)
                   {
-                     directoryStart = pos;
-                     break; // FOUND IT
+
+                     // CENTRAL DIRECTORY DATA
+                     directorySize = ByteArrayToInt(byteArray, pos + 12);
+                     directoryOffset = ByteArrayToInt(byteArray, pos + 16);
+                     directoryEntries = ByteArrayToShort(byteArray, pos + 10);
+                     break; 
+
                   }
                   else { pos--; }
                }
 
                locateTries++;
             }
+            if (directoryOffset == -1) { Log($"Hasnt found the central directory."); return; }
 
-            if (directoryStart == -1) { Log($"Hasnt found the central directory."); return; }
-            Log($"Found directory starting at {directoryStart}");
-
+            Log($"Found central directory with {directoryEntries} entries starting at {directoryOffset} with an size of {directorySize}.");
 
 
             return;
@@ -85,6 +91,16 @@ namespace StreamZIP
          var httpClient = new HttpClient();
          httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
          return httpClient;
+      }
+
+		private static int ByteArrayToInt(byte [] byteArray, int pos)
+		{
+         return byteArray[pos + 0] | (byteArray[pos + 1] << 8) | (byteArray[pos + 2] << 16) | (byteArray[pos + 3] << 24);
+      }
+
+		private static short ByteArrayToShort(byte [] byteArray, int pos)
+		{
+         return (short)(byteArray[pos + 0] | (byteArray[pos + 1] << 8));
       }
 
       private static void Log(string value)
