@@ -77,7 +77,13 @@ namespace StreamZIP
             }
             if (directoryOffset == -1) { Log($"Hasnt found the central directory."); return; }
 
+
+            // RETRIEVE CENTRAL DIRECTORY
             Log($"Found central directory with {directoryEntries} entries starting at {directoryOffset} with an size of {directorySize}.");
+            httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(directoryOffset, (directoryOffset+directorySize));
+            var dirByteArray = await httpClient.GetByteArrayAsync(httpUrl);
+
 
 
             return;
