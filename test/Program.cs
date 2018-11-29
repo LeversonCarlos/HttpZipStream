@@ -85,7 +85,62 @@ namespace StreamZIP
             var dirByteArray = await httpClient.GetByteArrayAsync(httpUrl);
 
 
+            // LOOP THROUGH ENTRIES
+            var entriesOffset = 0;
+            var entries = new string[directoryEntries];
+            for (int entryIndex = 0; entryIndex < directoryEntries; entryIndex++)
+            {
+               Log($"Entry: {entryIndex}");
 
+               // 0x02014b50 // ZipConstants.CENSIG
+               var entrySignature = ByteArrayToInt(dirByteArray, entriesOffset + 0);
+               var versionMadeBy = ByteArrayToShort(dirByteArray, entriesOffset + 4);
+               var minimumVersionNeededToExtract = ByteArrayToShort(dirByteArray, entriesOffset + 6);
+               var generalPurposeBitFlag = ByteArrayToShort(dirByteArray, entriesOffset + 8);
+
+               var compressionMethod = ByteArrayToShort(dirByteArray, entriesOffset + 10);
+               var fileLastModification = ByteArrayToInt(dirByteArray, entriesOffset + 12);
+               // var fileLastModificationTime = ByteArrayToShort(dirByteArray, entriesOffset + 12);
+               // var fileLastModificationDate = ByteArrayToShort(dirByteArray, entriesOffset + 14);
+               var crc32 = ByteArrayToInt(dirByteArray, entriesOffset + 16);
+
+               var compressedSize = ByteArrayToInt(dirByteArray, entriesOffset + 20);
+               var uncompressedSize = ByteArrayToInt(dirByteArray, entriesOffset + 24);
+
+               var fileNameLength = ByteArrayToShort(dirByteArray, entriesOffset + 28); // (n)
+               var extraFieldLength = ByteArrayToShort(dirByteArray, entriesOffset + 30); // (m)
+               var fileCommentLength = ByteArrayToShort(dirByteArray, entriesOffset + 32); // (k)
+
+               var diskNumberWhereFileStarts = ByteArrayToShort(dirByteArray, entriesOffset + 34);
+               var internalFileAttributes = ByteArrayToShort(dirByteArray, entriesOffset + 36);
+               var externalFileAttributes = ByteArrayToShort(dirByteArray, entriesOffset + 38);
+
+               var fileOffset = ByteArrayToInt(dirByteArray, entriesOffset + 42);
+
+               var fileNameStart = entriesOffset + 46;
+               var fileNameBuffer = new byte[fileNameLength];
+               Array.Copy(dirByteArray, fileNameStart, fileNameBuffer, 0, fileNameLength);
+               var fileName = System.Text.Encoding.Default.GetString(fileNameBuffer);
+
+               var extraFieldStart = fileNameStart + fileNameLength;
+               var extraFieldBuffer = new byte[extraFieldLength];
+               Array.Copy(dirByteArray, extraFieldStart, extraFieldBuffer, 0, extraFieldLength);
+               var extraField = System.Text.Encoding.Default.GetString(extraFieldBuffer);
+
+               var fileCommentStart = extraFieldStart + extraFieldLength;
+               var fileCommentBuffer = new byte[fileCommentLength];
+               Array.Copy(dirByteArray, fileCommentStart, fileCommentBuffer, 0, fileCommentLength);
+               var fileComment = System.Text.Encoding.Default.GetString(fileCommentBuffer);
+
+               Log($" FileName: {fileName}");
+               Log($" FileOffset: {fileOffset}");
+               Log($" CompressedSize: {compressedSize}");
+               Log($" UncompressedSize: {uncompressedSize}");
+
+               entriesOffset = fileCommentStart + fileCommentLength;
+            }
+
+            Log($"Result");
             return;
          }
          catch (Exception ex) { Log($"Exception: {ex.ToString()}"); }
