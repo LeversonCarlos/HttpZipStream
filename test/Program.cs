@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -20,6 +21,7 @@ namespace StreamZIP
 
 
             // MAKE A HTTP CALL REQUIRING ONLY THE HEADERS SO IT SHOULD BE A FAST CALL
+            Log("Make initial call to the url");
             var httpClient = GetHttpClient();
             var httpMessage = await httpClient.GetAsync(httpUrl, HttpCompletionOption.ResponseHeadersRead);
             if (!httpMessage.IsSuccessStatusCode) { Log($"Received Http Status Code {httpMessage.StatusCode}."); return; }
@@ -87,58 +89,65 @@ namespace StreamZIP
 
             // LOOP THROUGH ENTRIES
             var entriesOffset = 0;
-            var entries = new string[directoryEntries];
+            var entries = new List<Entry>();
             for (int entryIndex = 0; entryIndex < directoryEntries; entryIndex++)
             {
                Log($"Entry: {entryIndex}");
+               var entry = new Entry();
+               entry.Index = entryIndex;
 
                // 0x02014b50 // ZipConstants.CENSIG
-               var entrySignature = ByteArrayToInt(dirByteArray, entriesOffset + 0);
-               var versionMadeBy = ByteArrayToShort(dirByteArray, entriesOffset + 4);
-               var minimumVersionNeededToExtract = ByteArrayToShort(dirByteArray, entriesOffset + 6);
-               var generalPurposeBitFlag = ByteArrayToShort(dirByteArray, entriesOffset + 8);
+               entry.Signature = ByteArrayToInt(dirByteArray, entriesOffset + 0);
+               entry.VersionMadeBy = ByteArrayToShort(dirByteArray, entriesOffset + 4);
+               entry.MinimumVersionNeededToExtract = ByteArrayToShort(dirByteArray, entriesOffset + 6);
+               entry.GeneralPurposeBitFlag = ByteArrayToShort(dirByteArray, entriesOffset + 8);
 
-               var compressionMethod = ByteArrayToShort(dirByteArray, entriesOffset + 10);
-               var fileLastModification = ByteArrayToInt(dirByteArray, entriesOffset + 12);
+               entry.CompressionMethod = ByteArrayToShort(dirByteArray, entriesOffset + 10);
+               entry.FileLastModification = ByteArrayToInt(dirByteArray, entriesOffset + 12);
                // var fileLastModificationTime = ByteArrayToShort(dirByteArray, entriesOffset + 12);
                // var fileLastModificationDate = ByteArrayToShort(dirByteArray, entriesOffset + 14);
-               var crc32 = ByteArrayToInt(dirByteArray, entriesOffset + 16);
+               entry.CRC32 = ByteArrayToInt(dirByteArray, entriesOffset + 16);
 
-               var compressedSize = ByteArrayToInt(dirByteArray, entriesOffset + 20);
-               var uncompressedSize = ByteArrayToInt(dirByteArray, entriesOffset + 24);
+               entry.CompressedSize = ByteArrayToInt(dirByteArray, entriesOffset + 20);
+               entry.UncompressedSize = ByteArrayToInt(dirByteArray, entriesOffset + 24);
 
-               var fileNameLength = ByteArrayToShort(dirByteArray, entriesOffset + 28); // (n)
-               var extraFieldLength = ByteArrayToShort(dirByteArray, entriesOffset + 30); // (m)
-               var fileCommentLength = ByteArrayToShort(dirByteArray, entriesOffset + 32); // (k)
+               entry.FileNameLength = ByteArrayToShort(dirByteArray, entriesOffset + 28); // (n)
+               entry.ExtraFieldLength = ByteArrayToShort(dirByteArray, entriesOffset + 30); // (m)
+               entry.FileCommentLength = ByteArrayToShort(dirByteArray, entriesOffset + 32); // (k)
 
-               var diskNumberWhereFileStarts = ByteArrayToShort(dirByteArray, entriesOffset + 34);
-               var internalFileAttributes = ByteArrayToShort(dirByteArray, entriesOffset + 36);
-               var externalFileAttributes = ByteArrayToShort(dirByteArray, entriesOffset + 38);
+               entry.DiskNumberWhereFileStarts = ByteArrayToShort(dirByteArray, entriesOffset + 34);
+               entry.InternalFileAttributes = ByteArrayToShort(dirByteArray, entriesOffset + 36);
+               entry.ExternalFileAttributes = ByteArrayToShort(dirByteArray, entriesOffset + 38);
 
-               var fileOffset = ByteArrayToInt(dirByteArray, entriesOffset + 42);
+               entry.FileOffset = ByteArrayToInt(dirByteArray, entriesOffset + 42);
 
                var fileNameStart = entriesOffset + 46;
-               var fileNameBuffer = new byte[fileNameLength];
-               Array.Copy(dirByteArray, fileNameStart, fileNameBuffer, 0, fileNameLength);
-               var fileName = System.Text.Encoding.Default.GetString(fileNameBuffer);
+               var fileNameBuffer = new byte[entry.FileNameLength];
+               Array.Copy(dirByteArray, fileNameStart, fileNameBuffer, 0, entry.FileNameLength);
+               entry.FileName = System.Text.Encoding.Default.GetString(fileNameBuffer);
 
-               var extraFieldStart = fileNameStart + fileNameLength;
-               var extraFieldBuffer = new byte[extraFieldLength];
-               Array.Copy(dirByteArray, extraFieldStart, extraFieldBuffer, 0, extraFieldLength);
-               var extraField = System.Text.Encoding.Default.GetString(extraFieldBuffer);
+               var extraFieldStart = fileNameStart + entry.FileNameLength;
+               var extraFieldBuffer = new byte[entry.ExtraFieldLength];
+               Array.Copy(dirByteArray, extraFieldStart, extraFieldBuffer, 0, entry.ExtraFieldLength);
+               entry.ExtraField = System.Text.Encoding.Default.GetString(extraFieldBuffer);
 
-               var fileCommentStart = extraFieldStart + extraFieldLength;
-               var fileCommentBuffer = new byte[fileCommentLength];
-               Array.Copy(dirByteArray, fileCommentStart, fileCommentBuffer, 0, fileCommentLength);
-               var fileComment = System.Text.Encoding.Default.GetString(fileCommentBuffer);
+               var fileCommentStart = extraFieldStart + entry.ExtraFieldLength;
+               var fileCommentBuffer = new byte[entry.FileCommentLength];
+               Array.Copy(dirByteArray, fileCommentStart, fileCommentBuffer, 0, entry.FileCommentLength);
+               entry.FileComment = System.Text.Encoding.Default.GetString(fileCommentBuffer);
 
-               Log($" FileName: {fileName}");
-               Log($" FileOffset: {fileOffset}");
-               Log($" CompressedSize: {compressedSize}");
-               Log($" UncompressedSize: {uncompressedSize}");
-
-               entriesOffset = fileCommentStart + fileCommentLength;
+               entries.Add(entry);
+               Log($" {entry.FileName}");
+               entriesOffset = fileCommentStart + entry.FileCommentLength;
             }
+
+            Log($"Found {entries.Count} entries");
+
+            var smaller = entries.OrderBy(x => x.CompressedSize).FirstOrDefault();
+            Log($"Smaller entry is {smaller.FileName} with {smaller.CompressedSize} bytes");
+
+            var greater = entries.OrderByDescending(x => x.CompressedSize).FirstOrDefault();
+            Log($"Greater entry is {greater.FileName} with {greater.CompressedSize} bytes");
 
             Log($"Result");
             return;
@@ -167,5 +176,28 @@ namespace StreamZIP
       private static void Log(string value)
       { Console.WriteLine($"{DateTime.Now.ToString("mm:ss.fff")} - {value}"); }
 
+   }
+   public class Entry
+   {
+      public int Index { get; set; }
+      public int Signature { get; set; }
+      public short VersionMadeBy { get; set; }
+      public short MinimumVersionNeededToExtract { get; set; }
+      public short GeneralPurposeBitFlag { get; set; }
+      public short CompressionMethod { get; set; }
+      public int FileLastModification { get; set; }
+      public int CRC32 { get; set; }
+      public int CompressedSize { get; set; }
+      public int UncompressedSize { get; set; }
+      public short FileNameLength { get; set; }
+      public short ExtraFieldLength { get; set; }
+      public short FileCommentLength { get; set; }
+      public short DiskNumberWhereFileStarts { get; set; }
+      public short InternalFileAttributes { get; set; }
+      public short ExternalFileAttributes { get; set; }
+      public int FileOffset { get; set; }
+      public string FileName { get; set; }
+      public string ExtraField { get; set; }
+      public string FileComment { get; set; }
    }
 }
