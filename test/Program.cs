@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -69,7 +71,7 @@ namespace StreamZIP
                      directorySize = ByteArrayToInt(byteArray, pos + 12);
                      directoryOffset = ByteArrayToInt(byteArray, pos + 16);
                      directoryEntries = ByteArrayToShort(byteArray, pos + 10);
-                     break; 
+                     break;
 
                   }
                   else { pos--; }
@@ -83,7 +85,7 @@ namespace StreamZIP
             // RETRIEVE CENTRAL DIRECTORY
             Log($"Found central directory with {directoryEntries} entries starting at {directoryOffset} with an size of {directorySize}.");
             httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(directoryOffset, (directoryOffset+directorySize));
+            httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(directoryOffset, (directoryOffset + directorySize));
             var dirByteArray = await httpClient.GetByteArrayAsync(httpUrl);
 
 
@@ -141,13 +143,61 @@ namespace StreamZIP
                entriesOffset = fileCommentStart + entry.FileCommentLength;
             }
 
-            Log($"Found {entries.Count} entries");
 
+            // ENTRIES FOUND
+            Log($"Found {entries.Count} entries");
             var smaller = entries.OrderBy(x => x.CompressedSize).FirstOrDefault();
             Log($"Smaller entry is {smaller.FileName} with {smaller.CompressedSize} bytes");
+            var larger = entries.OrderByDescending(x => x.CompressedSize).FirstOrDefault();
+            Log($"Larger entry is {larger.FileName} with {larger.CompressedSize} bytes");
 
-            var greater = entries.OrderByDescending(x => x.CompressedSize).FirstOrDefault();
-            Log($"Greater entry is {greater.FileName} with {greater.CompressedSize} bytes");
+            // EXTRACT THE LARGER ONE
+            Log($"ExtractingFile");
+            httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(larger.FileOffset, (larger.FileOffset + larger.CompressedSize));
+            var fileByteArray = await httpClient.GetByteArrayAsync(httpUrl);
+            Log($"ExtractedFile");
+
+            var fileSignature = ByteArrayToInt(fileByteArray, 0);
+            var fileNameLength = ByteArrayToShort(fileByteArray, 26); // (n)
+            var extraFieldLength = ByteArrayToShort(fileByteArray, 28); // (m)
+
+            var fileDataOffset = 30 + fileNameLength + extraFieldLength;
+            var fileDataSize = larger.CompressedSize - fileDataOffset;
+
+            var fileDataBuffer = new byte[fileDataSize];
+            Array.Copy(fileByteArray, fileDataOffset, fileDataBuffer, 0, fileDataSize);
+
+            var fileHandle = System.IO.Path.GetTempFileName();
+            Log($"fileHandle:{fileHandle}");
+
+            using (var fileMemoryStream = new MemoryStream(fileDataBuffer))
+            {
+               fileMemoryStream.Position = 0;
+
+               using (var fileStream = new FileStream(fileHandle, FileMode.Create))
+               {
+                  Log($"CompressionMethod:{larger.CompressionMethod}");
+
+                  /* STORED */
+                  if (larger.CompressionMethod == 0)
+                  {
+                     await fileMemoryStream.CopyToAsync(fileStream);
+                  }
+
+                  /* DEFLATED */
+                  if (larger.CompressionMethod == 8)
+                  {
+                     using (var deflateStream = new System.IO.Compression.DeflateStream(fileMemoryStream, CompressionMode.Decompress))
+                     {
+                        await deflateStream.CopyToAsync(fileStream);
+                     }
+                  }
+
+               }
+
+            }
+
 
             Log($"Result");
             return;
