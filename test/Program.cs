@@ -146,8 +146,11 @@ namespace StreamZIP
 
             // ENTRIES FOUND
             Log($"Found {entries.Count} entries");
-            var page = entries.OrderBy(x => x.CompressedSize).FirstOrDefault();
-            Log($"Larger entry is {page.FileName} with {page.CompressedSize} bytes");
+            var random = new Random(DateTime.Now.Second);
+            var pageNumber = random.Next(0, entries.Count);
+            Log($"pageNumber{pageNumber}");
+            var page = entries[pageNumber];
+            Log($"Page is {page.FileName} with {page.CompressedSize} bytes");
 
             // EXTRACT THE LARGER ONE
             Log($"ExtractingFile");
@@ -167,7 +170,7 @@ namespace StreamZIP
             Array.Copy(fileByteArray, fileDataOffset, fileDataBuffer, 0, fileDataSize);
 
             var filePathHandle = System.IO.Path.GetTempFileName();
-            var fileHandle = $"{filePathHandle}_{page.FileName.Replace(" ", "")}";
+            var fileHandle = $"{filePathHandle}.jpg";
             System.IO.File.Move(filePathHandle, fileHandle);
             Log($"fileHandle:{fileHandle}");
 
