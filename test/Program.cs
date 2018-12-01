@@ -146,15 +146,13 @@ namespace StreamZIP
 
             // ENTRIES FOUND
             Log($"Found {entries.Count} entries");
-            var smaller = entries.OrderBy(x => x.CompressedSize).FirstOrDefault();
-            Log($"Smaller entry is {smaller.FileName} with {smaller.CompressedSize} bytes");
-            var larger = entries.OrderByDescending(x => x.CompressedSize).FirstOrDefault();
-            Log($"Larger entry is {larger.FileName} with {larger.CompressedSize} bytes");
+            var page = entries.OrderBy(x => x.CompressedSize).FirstOrDefault();
+            Log($"Larger entry is {page.FileName} with {page.CompressedSize} bytes");
 
             // EXTRACT THE LARGER ONE
             Log($"ExtractingFile");
             httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(larger.FileOffset, (larger.FileOffset + larger.CompressedSize));
+            httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(page.FileOffset, (page.FileOffset + page.CompressedSize));
             var fileByteArray = await httpClient.GetByteArrayAsync(httpUrl);
             Log($"ExtractedFile");
 
@@ -163,12 +161,14 @@ namespace StreamZIP
             var extraFieldLength = ByteArrayToShort(fileByteArray, 28); // (m)
 
             var fileDataOffset = 30 + fileNameLength + extraFieldLength;
-            var fileDataSize = larger.CompressedSize - fileDataOffset;
+            var fileDataSize = page.CompressedSize - fileDataOffset;
 
             var fileDataBuffer = new byte[fileDataSize];
             Array.Copy(fileByteArray, fileDataOffset, fileDataBuffer, 0, fileDataSize);
 
-            var fileHandle = System.IO.Path.GetTempFileName();
+            var filePathHandle = System.IO.Path.GetTempFileName();
+            var fileHandle = $"{filePathHandle}_{page.FileName.Replace(" ", "")}";
+            System.IO.File.Move(filePathHandle, fileHandle);
             Log($"fileHandle:{fileHandle}");
 
             using (var fileMemoryStream = new MemoryStream(fileDataBuffer))
@@ -177,16 +177,16 @@ namespace StreamZIP
 
                using (var fileStream = new FileStream(fileHandle, FileMode.Create))
                {
-                  Log($"CompressionMethod:{larger.CompressionMethod}");
+                  Log($"CompressionMethod:{page.CompressionMethod}");
 
                   /* STORED */
-                  if (larger.CompressionMethod == 0)
+                  if (page.CompressionMethod == 0)
                   {
                      await fileMemoryStream.CopyToAsync(fileStream);
                   }
 
                   /* DEFLATED */
-                  if (larger.CompressionMethod == 8)
+                  if (page.CompressionMethod == 8)
                   {
                      using (var deflateStream = new System.IO.Compression.DeflateStream(fileMemoryStream, CompressionMode.Decompress))
                      {
