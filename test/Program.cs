@@ -19,7 +19,8 @@ namespace StreamZIP
          try
          {
             Log("Initialized");
-            var httpUrl = "https://onedrive.live.com/download.aspx?cid=E6710A9CD086B950&authKey=%21AJeGdFhgxPdH8M4&resid=E6710A9CD086B950%2157128&ithint=%2Ecbz";
+            //var httpUrl = "https://onedrive.live.com/download.aspx?cid=E6710A9CD086B950&authKey=%21AJeGdFhgxPdH8M4&resid=E6710A9CD086B950%2157128&ithint=%2Ecbz";
+            var httpUrl = "https://onedrive.live.com/download.aspx?cid=E6710A9CD086B950&authKey=%21AJeGdFhgxPdH8M4&resid=E6710A9CD086B950%2157134&ithint=%2Ecbz";
 
 
             // MAKE A HTTP CALL REQUIRING ONLY THE HEADERS SO IT SHOULD BE A FAST CALL
@@ -143,17 +144,22 @@ namespace StreamZIP
                entriesOffset = fileCommentStart + entry.FileCommentLength;
             }
 
-
             // ENTRIES FOUND
             Log($"Found {entries.Count} entries");
-            var random = new Random(DateTime.Now.Second);
-            var pageNumber = random.Next(0, entries.Count);
-            Log($"pageNumber{pageNumber}");
-            var page = entries[pageNumber];
-            Log($"Page is {page.FileName} with {page.CompressedSize} bytes");
 
-            // EXTRACT THE LARGER ONE
+            // RANDOM PAGE
+            var random = new Random(DateTime.Now.Second);
+               var pageNumber = random.Next(0, entries.Count);
+               var page = entries[pageNumber];
+               Log($"Page is {page.FileName} with {page.CompressedSize} bytes");
+
+            // EXTRACT PAGE
             Log($"ExtractingFile");
+            /*
+            var pageRanges = randomPages
+               .Select(page => new RangeItemHeaderValue(page.FileOffset, (page.FileOffset + page.CompressedSize)))
+               .ToList();
+            */
             httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(page.FileOffset, (page.FileOffset + page.CompressedSize));
             var fileByteArray = await httpClient.GetByteArrayAsync(httpUrl);
@@ -216,13 +222,13 @@ namespace StreamZIP
          return httpClient;
       }
 
-		private static int ByteArrayToInt(byte [] byteArray, int pos)
-		{
+      private static int ByteArrayToInt(byte[] byteArray, int pos)
+      {
          return byteArray[pos + 0] | (byteArray[pos + 1] << 8) | (byteArray[pos + 2] << 16) | (byteArray[pos + 3] << 24);
       }
 
-		private static short ByteArrayToShort(byte [] byteArray, int pos)
-		{
+      private static short ByteArrayToShort(byte[] byteArray, int pos)
+      {
          return (short)(byteArray[pos + 0] | (byteArray[pos + 1] << 8));
       }
 
