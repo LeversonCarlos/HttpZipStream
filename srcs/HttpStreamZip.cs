@@ -18,7 +18,7 @@ namespace System.IO.Compression
       }
 
       long ContentLength { get; set; }
-      private async Task<bool> RefreshContentLength(string httpUrl)
+      private async Task<bool> RefreshContentLengthAsync(string httpUrl)
       {
          try
          {
@@ -29,6 +29,16 @@ namespace System.IO.Compression
                .Select(x => long.Parse(x))
                .FirstOrDefault();
             return true;
+         }
+         catch (Exception) { throw; }
+      }
+
+      DirectoryData directoryData { get; set; }
+      private async Task<bool> LocateDirectoryAsync()
+      {
+         try
+         { 
+
          }
          catch (Exception) { throw; }
       }
