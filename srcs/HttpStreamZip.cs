@@ -114,10 +114,17 @@ namespace System.IO.Compression
             var byteArray = await httpClient.GetByteArrayAsync(this.httpUrl);
 
             // LOOP THROUGH ENTRIES
-            // var entriesOffset = 0;
+            var entriesOffset = 0;
             for (int entryIndex = 0; entryIndex < this.directoryData.Entries; entryIndex++)
             {
                var entry = new HttpStreamZipEntry(entryIndex);
+               // https://en.wikipedia.org/wiki/Zip_(file_format)#Local_file_header
+               
+               entry.Signature = ByteArrayToInt(byteArray, entriesOffset + 0); // 0x04034b50
+               entry.VersionMadeBy = ByteArrayToShort(byteArray, entriesOffset + 4);
+               entry.MinimumVersionNeededToExtract = ByteArrayToShort(byteArray, entriesOffset + 6);
+               entry.GeneralPurposeBitFlag = ByteArrayToShort(byteArray, entriesOffset + 8);
+
 
                this.EntryList.Add(entry);
             }

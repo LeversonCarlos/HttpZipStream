@@ -10,10 +10,11 @@ namespace System.IO.Compression
 
       public int Index { get; }
 
-      // public int Signature { get; set; }
-      // public short VersionMadeBy { get; set; }
-      // public short MinimumVersionNeededToExtract { get; set; }
-      // public short GeneralPurposeBitFlag { get; set; }
+      internal int Signature { get; set; }
+      internal short VersionMadeBy { get; set; }
+      internal short MinimumVersionNeededToExtract { get; set; }
+      internal short GeneralPurposeBitFlag { get; set; }
+
       // public short CompressionMethod { get; set; }
       // public int FileLastModification { get; set; }
       // public int CRC32 { get; set; }
