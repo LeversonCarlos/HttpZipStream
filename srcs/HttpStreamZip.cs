@@ -37,7 +37,16 @@ namespace System.IO.Compression
       private async Task<bool> LocateDirectoryAsync()
       {
          try
-         { 
+         {
+            this.directoryData = new DirectoryData { Offset = -1 };
+
+            // TRY TO FOUND THE CENTRAL DIRECTORY FOUR TIMES SLOWLY INCREASING THE BUFFER SIZE
+            short tries = 1;
+            while (this.directoryData.Offset == -1 && tries <= 4)
+            {
+
+               tries++;
+            }
 
          }
          catch (Exception) { throw; }
