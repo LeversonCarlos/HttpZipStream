@@ -5,7 +5,7 @@ namespace System.IO.Compression
 {
    public class HttpStreamZipTest
    {
-      string httpUrl = "https://nbksiq.sn.files.1drv.com/y4mS-DyZXkpHW8UpWwT7BoWkgKCVirwqxCPg-5ejrB1xbLYp38WtJr5cgs35OxfeAscDxpC5EmZcfq0lBOcyxKO_Cpmq92ywqgnltBvYD5MlCxsiklatljizQJ3sS-76aGvbqRBTZWJMjKrBYe6K2UdzfbDRjmuKqOvE_TbhbfHBD_4GmFJfGJwmdrlBsxK7BEKg9gHRDpNKJlt6Eo3sPNPKA/Blue%20Beetle%20%5B1967%5D%20%2301.cbz?download&psid=1";
+      string httpUrl = "https://nbksiq.sn.files.1drv.com/y4mMf9YEnMLi4aw8MXlkr424G5_5GXPI60vKgFC_XYM2e26Md1R4j4msK1kb1I7wGGS6i_t6SQA0xrAvqPNLAIxCRWqUf7DL-XOTWcq25XaLjFHZMZgWRdENqFR48bM50SIe1wppMhZmf6NyFHsQYH_8Us72c-0in6mVfRIL9jJSGisJCHNaOb6rRE43CalkNRXPJSyGWRIOsypps9pgIVRrw/Blue%20Beetle%20%5B1967%5D%20%2301.cbz?download&psid=1";
 
 
       [Fact]
@@ -25,8 +25,8 @@ namespace System.IO.Compression
          using (var streamZip = new System.IO.Compression.HttpStreamZip(httpUrl))
          {
             var contentLength = await streamZip.GetContentLengthAsync();
-            var directoryFound = await streamZip.LocateDirectoryAsync();
-            Assert.Equal(true, directoryFound);
+            var entryList = await streamZip.GetEntries();
+            Assert.NotNull(entryList);
          }
       }
 

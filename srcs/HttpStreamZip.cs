@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -44,7 +45,7 @@ namespace System.IO.Compression
 
 
       DirectoryData directoryData { get; set; }
-      public async Task<bool> LocateDirectoryAsync()
+      private async Task<bool> LocateDirectoryAsync()
       {
          try
          {
@@ -91,6 +92,39 @@ namespace System.IO.Compression
             }
 
             return false;
+         }
+         catch (Exception) { throw; }
+      }
+
+
+      List<HttpStreamZipEntry> EntryList { get; set; }
+      public async Task<List<HttpStreamZipEntry>> GetEntries()
+      {
+         try
+         {
+            // INITIALIZE
+            this.EntryList = new List<HttpStreamZipEntry>();
+            if (await this.GetContentLengthAsync() == -1) { return null; }
+            if (await this.LocateDirectoryAsync() == false) { return null; }
+
+            // MAKE A HTTP CALL USING THE RANGE HEADER
+            var rangeStart = this.directoryData.Offset;
+            var rangeFinish = this.directoryData.Offset + this.directoryData.Size;
+            this.httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(rangeStart, rangeFinish);
+            var byteArray = await httpClient.GetByteArrayAsync(this.httpUrl);
+
+            // LOOP THROUGH ENTRIES
+            // var entriesOffset = 0;
+            for (int entryIndex = 0; entryIndex < this.directoryData.Entries; entryIndex++)
+            {
+               var entry = new HttpStreamZipEntry(entryIndex);
+
+               this.EntryList.Add(entry);
+            }
+
+            // RESULT
+            return this.EntryList;
+
          }
          catch (Exception) { throw; }
       }
