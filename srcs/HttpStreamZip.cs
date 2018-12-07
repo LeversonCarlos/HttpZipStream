@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace System.IO.Compression
 {
-   public class HttpStreamZip
+   public class HttpStreamZip: IDisposable
    {
 
       string httpUrl { get; set; }
       HttpClient httpClient { get; set; }
-      public HttpStreamZip(string httpUrl) : this(httpUrl, new HttpClient()) { }
+      bool LeaveHttpClientOpen { get; set; }
+      public HttpStreamZip(string httpUrl) : this(httpUrl, new HttpClient()) { this.LeaveHttpClientOpen = true; }
       public HttpStreamZip(string httpUrl, HttpClient httpClient)
       {
          this.httpUrl = httpUrl;
@@ -88,6 +89,13 @@ namespace System.IO.Compression
             return false;
          }
          catch (Exception) { throw; }
+      }
+
+      public void Dispose()
+      {
+         if (!this.LeaveHttpClientOpen) { this.httpClient.Dispose(); this.httpClient = null; }
+         this.directoryData = null;
+         this.ContentLength = 0;
       }
 
    }
