@@ -19,5 +19,17 @@ namespace System.IO.Compression
       }
 
 
+      [Fact]
+      public async void TempTest()
+      { 
+         using (var streamZip = new System.IO.Compression.HttpStreamZip(httpUrl))
+         {
+            var contentLength = await streamZip.GetContentLengthAsync();
+            var directoryFound = await streamZip.LocateDirectoryAsync();
+            Assert.Equal(true, directoryFound);
+         }
+      }
+
+
    }
 }

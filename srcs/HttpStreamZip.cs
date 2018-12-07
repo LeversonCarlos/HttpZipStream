@@ -9,6 +9,7 @@ namespace System.IO.Compression
    public class HttpStreamZip: IDisposable
    {
 
+
       string httpUrl { get; set; }
       HttpClient httpClient { get; set; }
       bool LeaveHttpClientOpen { get; set; }
@@ -20,7 +21,9 @@ namespace System.IO.Compression
          this.httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
       }
 
+
       public long ContentLength { get; private set; } = -1;
+      // public void SetContentLength(long value) { this.ContentLength = value; }
       public async Task<long> GetContentLengthAsync()
       {
          try
@@ -39,8 +42,9 @@ namespace System.IO.Compression
          catch (Exception) { throw; }
       }
 
+
       DirectoryData directoryData { get; set; }
-      private async Task<bool> LocateDirectoryAsync()
+      public async Task<bool> LocateDirectoryAsync()
       {
          try
          {
@@ -74,9 +78,9 @@ namespace System.IO.Compression
                       byteArray[pos + 2] == 0x05 &&
                       byteArray[pos + 3] == 0x06)
                   {
-                     // this.directoryData.Size = ByteArrayToInt(byteArray, pos + 12);
-                     // this.directoryData.Offset = ByteArrayToInt(byteArray, pos + 16);
-                     // this.directoryData.Entries = ByteArrayToShort(byteArray, pos + 10);
+                     this.directoryData.Size = ByteArrayToInt(byteArray, pos + 12);
+                     this.directoryData.Offset = ByteArrayToInt(byteArray, pos + 16);
+                     this.directoryData.Entries = ByteArrayToShort(byteArray, pos + 10);
                      return true;
                   }
                   else { pos--; }
@@ -91,12 +95,25 @@ namespace System.IO.Compression
          catch (Exception) { throw; }
       }
 
+
+      private static int ByteArrayToInt(byte[] byteArray, int pos)
+      {
+         return byteArray[pos + 0] | (byteArray[pos + 1] << 8) | (byteArray[pos + 2] << 16) | (byteArray[pos + 3] << 24);
+      }
+
+      private static short ByteArrayToShort(byte[] byteArray, int pos)
+      {
+         return (short)(byteArray[pos + 0] | (byteArray[pos + 1] << 8));
+      }
+
+
       public void Dispose()
       {
          if (!this.LeaveHttpClientOpen) { this.httpClient.Dispose(); this.httpClient = null; }
          this.directoryData = null;
          this.ContentLength = 0;
       }
+      
 
    }
 }
