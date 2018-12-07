@@ -19,18 +19,21 @@ namespace System.IO.Compression
          this.httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
       }
 
-      long ContentLength { get; set; }
-      private async Task<bool> RefreshContentLengthAsync()
+      public long ContentLength { get; private set; } = -1;
+      public async Task<long> GetContentLengthAsync()
       {
          try
          {
-            var httpMessage = await this.httpClient.GetAsync(this.httpUrl, HttpCompletionOption.ResponseHeadersRead);
-            if (!httpMessage.IsSuccessStatusCode) { return false; }
-            this.ContentLength = httpMessage.Content.Headers
-               .GetValues("Content-Length")
-               .Select(x => long.Parse(x))
-               .FirstOrDefault();
-            return true;
+            if (this.ContentLength != -1) { return this.ContentLength; }
+            using (var httpMessage = await this.httpClient.GetAsync(this.httpUrl, HttpCompletionOption.ResponseHeadersRead))
+            { 
+               if (!httpMessage.IsSuccessStatusCode) { return -1; }
+               this.ContentLength = httpMessage.Content.Headers
+                  .GetValues("Content-Length")
+                  .Select(x => long.Parse(x))
+                  .FirstOrDefault();
+               return this.ContentLength;
+            }
          }
          catch (Exception) { throw; }
       }
