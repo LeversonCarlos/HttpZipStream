@@ -4,7 +4,7 @@ using Xunit;
 
 namespace System.IO.Compression
 {
-   public class HttpStreamZipTest
+   public class HttpZipStreamTest
    {
       string httpUrl = "https://nbksiq.sn.files.1drv.com/y4mb3XRulz2OcLKckOtAzTMseqZchltP7kuzfkMPee93wNSXAdKgqP5_c0U-4rqZnsMcTjpbN5Ojnw31N3GDYNKkj8A6P7VV3JaFuacLSZ5LLknkfX5GC1iOrf3YpkHwo2EsaSVwE7jcxs7Id8-BI97tZJ-V2vf5qb3hRPif0MG_mMdY0GjPu1kAt7xxfnxzlOWeBfzlEaBwKGFL-QL3NyFXw/Blue%20Beetle%20%5B1967%5D%20%2301.cbz?download&psid=1";
 
@@ -12,7 +12,7 @@ namespace System.IO.Compression
       [Fact]
       public async void ExampleStream_ContentLength_MustBe_9702kbytes()
       {
-         using (var streamZip = new System.IO.Compression.HttpStreamZip(httpUrl))
+         using (var streamZip = new HttpZipStream(httpUrl))
          {
             var contentLength = await streamZip.GetContentLengthAsync();
             Assert.Equal(9935427, contentLength);
@@ -23,7 +23,7 @@ namespace System.IO.Compression
       [Fact]
       public async void ExampleStream_Entries_MustHave_36items()
       { 
-         using (var streamZip = new System.IO.Compression.HttpStreamZip(httpUrl))
+         using (var streamZip = new HttpZipStream(httpUrl))
          {
             var contentLength = await streamZip.GetContentLengthAsync();
             var entryList = await streamZip.GetEntries();
@@ -35,7 +35,7 @@ namespace System.IO.Compression
       [Fact]
       public async void ExampleStream_LargerEntry_MustBe_0001_With_347kbytes()
       { 
-         using (var streamZip = new System.IO.Compression.HttpStreamZip(httpUrl))
+         using (var streamZip = new HttpZipStream(httpUrl))
          {
             var contentLength = await streamZip.GetContentLengthAsync();
             var entryList = await streamZip.GetEntries();
@@ -52,7 +52,7 @@ namespace System.IO.Compression
       [Fact]
       public async void ExampleStream_SmallerEntryExtraction_MustResult_MemoryStream_With_227kbytes()
       {
-         using (var streamZip = new System.IO.Compression.HttpStreamZip(httpUrl))
+         using (var streamZip = new HttpZipStream(httpUrl))
          {
             var contentLength = await streamZip.GetContentLengthAsync();
             var entryList = await streamZip.GetEntries();

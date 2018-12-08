@@ -1,9 +1,9 @@
 namespace System.IO.Compression
 {
-   public class HttpStreamZipEntry
+   public class HttpZipEntry
    { 
 
-      internal HttpStreamZipEntry(int index)
+      internal HttpZipEntry(int index)
       {
          this.Index = index;
       }

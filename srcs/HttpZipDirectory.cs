@@ -1,6 +1,6 @@
 namespace System.IO.Compression
 {
-   internal class DirectoryData
+   internal class HttpZipDirectory
    {
       public int Offset { get; set; }
       public int Size { get; set; }

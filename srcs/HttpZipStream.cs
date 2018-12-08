@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace System.IO.Compression
 {
-   public class HttpStreamZip : IDisposable
+   public class HttpZipStream : IDisposable
    {
 
 
       string httpUrl { get; set; }
       HttpClient httpClient { get; set; }
       bool LeaveHttpClientOpen { get; set; }
-      public HttpStreamZip(string httpUrl) : this(httpUrl, new HttpClient()) { this.LeaveHttpClientOpen = true; }
-      public HttpStreamZip(string httpUrl, HttpClient httpClient)
+      public HttpZipStream(string httpUrl) : this(httpUrl, new HttpClient()) { this.LeaveHttpClientOpen = true; }
+      public HttpZipStream(string httpUrl, HttpClient httpClient)
       {
          this.httpUrl = httpUrl;
          this.httpClient = httpClient;
@@ -44,14 +44,14 @@ namespace System.IO.Compression
       }
 
 
-      DirectoryData directoryData { get; set; }
+      HttpZipDirectory directoryData { get; set; }
       private async Task<bool> LocateDirectoryAsync()
       {
          try
          {
 
             // INITIALIZE
-            this.directoryData = new DirectoryData { Offset = -1 };
+            this.directoryData = new HttpZipDirectory { Offset = -1 };
             var secureMargin = 22;
             var chunkSize = 256;
             var rangeStart = this.ContentLength - secureMargin;
@@ -98,13 +98,13 @@ namespace System.IO.Compression
       }
 
 
-      List<HttpStreamZipEntry> EntryList { get; set; }
-      public async Task<List<HttpStreamZipEntry>> GetEntries()
+      List<HttpZipEntry> EntryList { get; set; }
+      public async Task<List<HttpZipEntry>> GetEntries()
       {
          try
          {
             // INITIALIZE
-            this.EntryList = new List<HttpStreamZipEntry>();
+            this.EntryList = new List<HttpZipEntry>();
             if (await this.GetContentLengthAsync() == -1) { return null; }
             if (await this.LocateDirectoryAsync() == false) { return null; }
 
@@ -118,7 +118,7 @@ namespace System.IO.Compression
             var entriesOffset = 0;
             for (int entryIndex = 0; entryIndex < this.directoryData.Entries; entryIndex++)
             {
-               var entry = new HttpStreamZipEntry(entryIndex);
+               var entry = new HttpZipEntry(entryIndex);
                // https://en.wikipedia.org/wiki/Zip_(file_format)#Local_file_header
 
                entry.Signature = ByteArrayToInt(byteArray, entriesOffset + 0); // 0x04034b50
@@ -168,7 +168,7 @@ namespace System.IO.Compression
       }
 
 
-      public async Task ExtractEntries(List<HttpStreamZipEntry> entryList, Action<MemoryStream> resultCallback)
+      public async Task ExtractEntries(List<HttpZipEntry> entryList, Action<MemoryStream> resultCallback)
       {
          try
          {
@@ -179,7 +179,7 @@ namespace System.IO.Compression
       }
 
 
-      public async Task ExtractEntries(HttpStreamZipEntry entry, Action<MemoryStream> resultCallback)
+      public async Task ExtractEntries(HttpZipEntry entry, Action<MemoryStream> resultCallback)
       {
          try
          {
