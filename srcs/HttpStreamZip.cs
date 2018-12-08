@@ -131,6 +131,10 @@ namespace System.IO.Compression
                entry.CompressedSize = ByteArrayToInt(byteArray, entriesOffset + 20);
                entry.UncompressedSize = ByteArrayToInt(byteArray, entriesOffset + 24);
 
+               entry.FileNameLength = ByteArrayToShort(byteArray, entriesOffset + 28); // (n)
+               entry.ExtraFieldLength = ByteArrayToShort(byteArray, entriesOffset + 30); // (m)
+               entry.FileCommentLength = ByteArrayToShort(byteArray, entriesOffset + 32); // (k)
+
                this.EntryList.Add(entry);
             }
 

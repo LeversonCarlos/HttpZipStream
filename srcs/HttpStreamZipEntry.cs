@@ -20,12 +20,15 @@ namespace System.IO.Compression
       public int CRC32 { get; internal set; }
       public int CompressedSize { get; internal set; }
       public int UncompressedSize { get; internal set; }
-      // public short FileNameLength { get; set; }
-      // public short ExtraFieldLength { get; set; }
-      // public short FileCommentLength { get; set; }
-      // public short DiskNumberWhereFileStarts { get; set; }
-      // public short InternalFileAttributes { get; set; }
-      // public short ExternalFileAttributes { get; set; }
+
+      internal short FileNameLength { get; set; }
+      internal short ExtraFieldLength { get; set; }
+      internal short FileCommentLength { get; set; }
+
+      internal short DiskNumberWhereFileStarts { get; set; }
+      internal short InternalFileAttributes { get; set; }
+      internal short ExternalFileAttributes { get; set; }
+
       // public int FileOffset { get; set; }
       // public string FileName { get; set; }
       // public string ExtraField { get; set; }
