@@ -135,6 +135,12 @@ namespace System.IO.Compression
                entry.ExtraFieldLength = ByteArrayToShort(byteArray, entriesOffset + 30); // (m)
                entry.FileCommentLength = ByteArrayToShort(byteArray, entriesOffset + 32); // (k)
 
+               entry.DiskNumberWhereFileStarts = ByteArrayToShort(byteArray, entriesOffset + 34);
+               entry.InternalFileAttributes = ByteArrayToShort(byteArray, entriesOffset + 36);
+               entry.ExternalFileAttributes = ByteArrayToShort(byteArray, entriesOffset + 38);
+
+               entry.FileOffset = ByteArrayToInt(byteArray, entriesOffset + 42);
+
                this.EntryList.Add(entry);
             }
 
