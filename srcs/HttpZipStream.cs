@@ -190,6 +190,7 @@ namespace System.IO.Compression
             var byteArray = await httpClient.GetByteArrayAsync(this.httpUrl);
 
             // LOCATE DATA BOUNDS
+            // https://en.wikipedia.org/wiki/Zip_(file_format)#Local_file_header
             var fileSignature = ByteArrayToInt(byteArray, 0);
             var fileNameLength = ByteArrayToShort(byteArray, 26); // (n)
             var extraFieldLength = ByteArrayToShort(byteArray, 28); // (m)

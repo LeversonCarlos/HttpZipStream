@@ -1,12 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+   <PropertyGroup>
+      <TargetFramework>netstandard2.0</TargetFramework>
+      <PackageId>HttpZipStream</PackageId>
+      <Version>0.0.1</Version>
+      <Description>A simple parser to extract specific entries from a remote http zip archive without the need to download the entire file</Description>
+      <Authors>Leverson Carlos</Authors>
+      <Company>Leverson Carlos</Company>    
+      <PackageTags>httpzip remotezip zipstream httpzipstream</PackageTags>
+   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-  </ItemGroup>
+   <ItemGroup>
+      <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+      <PackageReference Include="System.Net.Http" Version="4.3.4" />
+   </ItemGroup>
 
 </Project>
