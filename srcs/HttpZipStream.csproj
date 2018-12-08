@@ -3,10 +3,11 @@
    <PropertyGroup>
       <TargetFramework>netstandard2.0</TargetFramework>
       <PackageId>HttpZipStream</PackageId>
-      <Version>0.0.1</Version>
+      <Version>0.0.2</Version>
       <Description>A simple parser to extract specific entries from a remote http zip archive without the need to download the entire file</Description>
-      <Authors>Leverson Carlos</Authors>
+      <Authors>Leverson Carlos;lcjohnny</Authors>
       <Company>Leverson Carlos</Company>    
+      <RepositoryUrl>https://github.com/LeversonCarlos/HttpZipStream</RepositoryUrl>
       <PackageTags>httpzip remotezip zipstream httpzipstream</PackageTags>
    </PropertyGroup>
 
