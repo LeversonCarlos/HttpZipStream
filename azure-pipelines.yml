@@ -20,5 +20,5 @@ steps:
   displayName: 'dotnet build $(buildConfiguration)'
 - script: dotnet pack ./srcs /p:Configuration=$(buildConfiguration)
   displayName: 'dotnet pack'
-- script: dotnet nuget push **\*.nupkg -k $(nugetApiKey) -s $(nugetApiUrl)
+- script: dotnet nuget push **\*.nupkg -k $(nugetApiKey) -s $(nugetApiUrl) -n
   displayName: 'dotnet nuget push'
