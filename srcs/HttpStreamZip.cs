@@ -155,8 +155,8 @@ namespace System.IO.Compression
                Array.Copy(byteArray, fileCommentStart, fileCommentBuffer, 0, entry.FileCommentLength);
                entry.FileComment = System.Text.Encoding.Default.GetString(fileCommentBuffer);
 
-
                this.EntryList.Add(entry);
+               entriesOffset = fileCommentStart + entry.FileCommentLength;
             }
 
             // RESULT

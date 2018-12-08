@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Xunit;
 
 namespace System.IO.Compression
@@ -30,6 +31,39 @@ namespace System.IO.Compression
          }
       }
 
+
+      [Fact]
+      public async void ExampleStream_LargerEntry_MustBe_0001_With_347kbytes()
+      { 
+         using (var streamZip = new System.IO.Compression.HttpStreamZip(httpUrl))
+         {
+            var contentLength = await streamZip.GetContentLengthAsync();
+            var entryList = await streamZip.GetEntries();
+            var largerEntry = entryList
+               .OrderByDescending(x => x.CompressedSize)
+               .Take(1)
+               .FirstOrDefault();
+            Assert.Equal("Blue Beetle [1967] #01 - 0001.jpg", largerEntry.FileName);
+            Assert.Equal(355736, largerEntry.CompressedSize);
+         }
+      }
+
+
+      [Fact]
+      public async void ExampleStream_SmallerEntry_MustBe_0005_With_227kbytes()
+      { 
+         using (var streamZip = new System.IO.Compression.HttpStreamZip(httpUrl))
+         {
+            var contentLength = await streamZip.GetContentLengthAsync();
+            var entryList = await streamZip.GetEntries();
+            var smallerEntry = entryList
+               .OrderBy(x => x.CompressedSize)
+               .Take(1)
+               .FirstOrDefault();
+            Assert.Equal("Blue Beetle [1967] #01 - 0035.jpg", smallerEntry.FileName);
+            Assert.Equal(232723, smallerEntry.CompressedSize);
+         }
+      }
 
    }
 }
