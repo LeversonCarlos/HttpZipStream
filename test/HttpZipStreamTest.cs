@@ -6,7 +6,7 @@ namespace System.IO.Compression
 {
    public class HttpZipStreamTest
    {
-      string httpUrl = "https://nbksiq.sn.files.1drv.com/y4mb3XRulz2OcLKckOtAzTMseqZchltP7kuzfkMPee93wNSXAdKgqP5_c0U-4rqZnsMcTjpbN5Ojnw31N3GDYNKkj8A6P7VV3JaFuacLSZ5LLknkfX5GC1iOrf3YpkHwo2EsaSVwE7jcxs7Id8-BI97tZJ-V2vf5qb3hRPif0MG_mMdY0GjPu1kAt7xxfnxzlOWeBfzlEaBwKGFL-QL3NyFXw/Blue%20Beetle%20%5B1967%5D%20%2301.cbz?download&psid=1";
+      string httpUrl = "https://nbksiq.sn.files.1drv.com/y4m_tqWEPvYFXywySEZidJQjR1n7g80tl9yXzFeflkiu6ZDtsW7tDD4rcBm38VQ7Rcs_nmcFtISdRPyqt_UFlCIeCIW6Sjkr-n7is93Map35ovNmQSbRmhvbz909lz_V5_dsz8OVtn9BUtqkdSOA9GJbZ6qn0Z4YDjJLKPHStbDxZhbKiO4tLz7YSTGm7Arbn6RkBF72Tjn8HBJdiJggsH5qQ/Blue%20Beetle%20%5B1967%5D%20%2301.cbz?download&psid=1";
 
 
       [Fact]
