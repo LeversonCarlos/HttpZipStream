@@ -61,7 +61,7 @@ namespace System.IO.Compression
                .Take(1)
                .FirstOrDefault();
             long memoryStreamLength = 0;
-            await streamZip.ExtractEntries(smallerEntry, (MemoryStream memoryStream) =>
+            await streamZip.Extract(smallerEntry, (MemoryStream memoryStream) =>
             {
                memoryStreamLength = memoryStream.Length;
             });

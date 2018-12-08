@@ -98,13 +98,12 @@ namespace System.IO.Compression
       }
 
 
-      List<HttpZipEntry> EntryList { get; set; }
       public async Task<List<HttpZipEntry>> GetEntries()
       {
          try
          {
             // INITIALIZE
-            this.EntryList = new List<HttpZipEntry>();
+            var entryList = new List<HttpZipEntry>();
             if (await this.GetContentLengthAsync() == -1) { return null; }
             if (await this.LocateDirectoryAsync() == false) { return null; }
 
@@ -156,30 +155,30 @@ namespace System.IO.Compression
                Array.Copy(byteArray, fileCommentStart, fileCommentBuffer, 0, entry.FileCommentLength);
                entry.FileComment = System.Text.Encoding.Default.GetString(fileCommentBuffer);
 
-               this.EntryList.Add(entry);
+               entryList.Add(entry);
                entriesOffset = fileCommentStart + entry.FileCommentLength;
             }
 
             // RESULT
-            return this.EntryList;
+            return entryList;
 
          }
          catch (Exception) { throw; }
       }
 
 
-      public async Task ExtractEntries(List<HttpZipEntry> entryList, Action<MemoryStream> resultCallback)
+      public async Task Extract(List<HttpZipEntry> entryList, Action<MemoryStream> resultCallback)
       {
          try
          {
             foreach (var entry in entryList)
-            { await this.ExtractEntries(entry, resultCallback); }
+            { await this.Extract(entry, resultCallback); }
          }
          catch (Exception) { throw; }
       }
 
 
-      public async Task ExtractEntries(HttpZipEntry entry, Action<MemoryStream> resultCallback)
+      public async Task Extract(HttpZipEntry entry, Action<MemoryStream> resultCallback)
       {
          try
          {
