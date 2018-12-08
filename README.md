@@ -2,13 +2,13 @@
 A simple library to extract specific entries from a remote http zip archive without the need to download the entire file. 
 
 ## Install instructions
-You can add the library to your project using the nuget package: 
+You can add the library to your project using the [nuget](https://www.nuget.org/packages/HttpZipStream) package: 
 ```
 dotnet add package HttpZipStream
 ```
 
-## Samples of how to use the library
-How to extract just the first entry from a remote zip archive: 
+## Sample of how to use the library
+Extracting just the first entry from a remote zip archive: 
 ```csharp 
    var httpUrl = "http://MyRemoteFile.zip"; 
    using (var zipStream = new HttpZipStream(httpUrl)) 
