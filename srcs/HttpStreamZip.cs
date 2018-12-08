@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace System.IO.Compression
 {
-   public class HttpStreamZip: IDisposable
+   public class HttpStreamZip : IDisposable
    {
 
 
@@ -31,7 +31,7 @@ namespace System.IO.Compression
          {
             if (this.ContentLength != -1) { return this.ContentLength; }
             using (var httpMessage = await this.httpClient.GetAsync(this.httpUrl, HttpCompletionOption.ResponseHeadersRead))
-            { 
+            {
                if (!httpMessage.IsSuccessStatusCode) { return -1; }
                this.ContentLength = httpMessage.Content.Headers
                   .GetValues("Content-Length")
@@ -71,7 +71,8 @@ namespace System.IO.Compression
                // 50 4B 05 06
                // https://en.wikipedia.org/wiki/Zip_(file_format)#End_of_central_directory_record_(EOCD)
                int pos = (byteArray.Length - secureMargin);
-               while (pos >= 0) { 
+               while (pos >= 0)
+               {
 
                   // FOUND CENTRAL DIRECTORY 
                   if (byteArray[pos + 0] == 0x50 &&
@@ -119,7 +120,7 @@ namespace System.IO.Compression
             {
                var entry = new HttpStreamZipEntry(entryIndex);
                // https://en.wikipedia.org/wiki/Zip_(file_format)#Local_file_header
-               
+
                entry.Signature = ByteArrayToInt(byteArray, entriesOffset + 0); // 0x04034b50
                entry.VersionMadeBy = ByteArrayToShort(byteArray, entriesOffset + 4);
                entry.MinimumVersionNeededToExtract = ByteArrayToShort(byteArray, entriesOffset + 6);
@@ -203,12 +204,29 @@ namespace System.IO.Compression
             /* STORED */
             if (entry.CompressionMethod == 0)
             {
-               var memoryStream = new MemoryStream(fileDataBuffer);
-               memoryStream.Position = 0;
-               resultCallback.Invoke(memoryStream);
+               var resultStream = new MemoryStream(fileDataBuffer);
+               resultStream.Position = 0;
+               resultCallback.Invoke(resultStream);
                return;
             }
 
+            /* DEFLATED */
+            if (entry.CompressionMethod == 8)
+            {
+               var resultStream = new MemoryStream();
+               using (var memoryStream = new MemoryStream(fileDataBuffer))
+               {
+                  using (var deflateStream = new System.IO.Compression.DeflateStream(memoryStream, CompressionMode.Decompress))
+                  {
+                     await deflateStream.CopyToAsync(resultStream);
+                  }
+               }
+               resultStream.Position = 0;
+               resultCallback.Invoke(resultStream);
+               return;
+            }
+
+            // NOT SUPPORTED COMPRESSION METHOD
             throw new NotSupportedException($"The compression method [{entry.CompressionMethod}] is not supported");
          }
          catch (Exception) { throw; }
@@ -232,7 +250,7 @@ namespace System.IO.Compression
          this.directoryData = null;
          this.ContentLength = 0;
       }
-      
+
 
    }
 }
