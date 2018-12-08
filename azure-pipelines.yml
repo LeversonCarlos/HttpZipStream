@@ -11,8 +11,14 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  -group: HttpZipStream
 
 steps:
 - script: dotnet restore ./srcs
+  displayName: 'dotnet restore'
 - script: dotnet build ./srcs --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
+- script: dotnet pack ./srcs /p:Configuration=$(buildConfiguration)
+  displayName: 'dotnet pack'
+- script: dotnet nuget push **\*.nupkg -k $(nugetApiKey) -s $(nugetApiUrl)
+  displayName: 'dotnet nuget push'
