@@ -18,7 +18,7 @@ steps:
   displayName: 'dotnet restore'
 - script: dotnet build ./srcs --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
-- script: dotnet pack ./srcs /p:Configuration=$(buildConfiguration)
+- script: dotnet pack ./srcs /p:Configuration=$(buildConfiguration) --include-symbols -p:SymbolPackageFormat=snupkg
   displayName: 'dotnet pack'
-- script: dotnet nuget push **\*.nupkg -k $(nugetApiKey) -s $(nugetApiUrl) -n
+- script: dotnet nuget push **\*.nupkg -k $(nugetApiKey) -s $(nugetApiUrl)
   displayName: 'dotnet nuget push'
