@@ -145,6 +145,10 @@ namespace System.IO.Compression
                Array.Copy(byteArray, fileNameStart, fileNameBuffer, 0, entry.FileNameLength);
                entry.FileName = System.Text.Encoding.Default.GetString(fileNameBuffer);
 
+               var extraFieldStart = fileNameStart + entry.FileNameLength;
+               var extraFieldBuffer = new byte[entry.ExtraFieldLength];
+               Array.Copy(byteArray, extraFieldStart, extraFieldBuffer, 0, entry.ExtraFieldLength);
+               entry.ExtraField = System.Text.Encoding.Default.GetString(extraFieldBuffer);
 
                this.EntryList.Add(entry);
             }
