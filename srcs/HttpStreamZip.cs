@@ -150,6 +150,12 @@ namespace System.IO.Compression
                Array.Copy(byteArray, extraFieldStart, extraFieldBuffer, 0, entry.ExtraFieldLength);
                entry.ExtraField = System.Text.Encoding.Default.GetString(extraFieldBuffer);
 
+               var fileCommentStart = extraFieldStart + entry.ExtraFieldLength;
+               var fileCommentBuffer = new byte[entry.FileCommentLength];
+               Array.Copy(byteArray, fileCommentStart, fileCommentBuffer, 0, entry.FileCommentLength);
+               entry.FileComment = System.Text.Encoding.Default.GetString(fileCommentBuffer);
+
+
                this.EntryList.Add(entry);
             }
 
