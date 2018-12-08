@@ -138,8 +138,13 @@ namespace System.IO.Compression
                entry.DiskNumberWhereFileStarts = ByteArrayToShort(byteArray, entriesOffset + 34);
                entry.InternalFileAttributes = ByteArrayToShort(byteArray, entriesOffset + 36);
                entry.ExternalFileAttributes = ByteArrayToShort(byteArray, entriesOffset + 38);
-
                entry.FileOffset = ByteArrayToInt(byteArray, entriesOffset + 42);
+
+               var fileNameStart = entriesOffset + 46;
+               var fileNameBuffer = new byte[entry.FileNameLength];
+               Array.Copy(byteArray, fileNameStart, fileNameBuffer, 0, entry.FileNameLength);
+               entry.FileName = System.Text.Encoding.Default.GetString(fileNameBuffer);
+
 
                this.EntryList.Add(entry);
             }

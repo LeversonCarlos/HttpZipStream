@@ -30,7 +30,7 @@ namespace System.IO.Compression
       internal short ExternalFileAttributes { get; set; }
 
       internal int FileOffset { get; set; }
-      // public string FileName { get; set; }
+      public string FileName { get; internal set; }
       // public string ExtraField { get; set; }
       // public string FileComment { get; set; }
    }
