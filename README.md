@@ -10,15 +10,15 @@ dotnet add package HttpZipStream
 ## Samples of how to use the library
 How to extract just the first entry from a remote zip archive: 
 ```csharp 
-   var httpUrl = "http://MyRemoteFile.zip";
-   using (var streamZip = new HttpZipStream(httpUrl))
-   {      
-      var entryList = await streamZip.GetEntries(); 
-      var entry = entryList.FirstOrDefault();
-      await streamZip.Extract(entry, (MemoryStream entryStream) => { 
+   var httpUrl = "http://MyRemoteFile.zip"; 
+   using (var zipStream = new HttpZipStream(httpUrl)) 
+   { 
+      var entryList = await zipStream.GetEntries(); 
+      var entry = entryList.FirstOrDefault(); 
+      await zipStream.Extract(entry, (MemoryStream entryStream) => { 
          /* store the entry stream where you like */
-      });      
-   }     
+      }); 
+   }
 ``` 
 
 ## Build using
@@ -30,4 +30,4 @@ How to extract just the first entry from a remote zip archive:
 * [Leverson Carlos](https://github.com/LeversonCarlos). 
 
 ## License
-GNU General Public License - see the [LICENSE.md](LICENSE.md) file for details
+GNU General Public License - see the [LICENSE](LICENSE) file for details
