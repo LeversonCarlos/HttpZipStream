@@ -125,6 +125,11 @@ namespace System.IO.Compression
                entry.MinimumVersionNeededToExtract = ByteArrayToShort(byteArray, entriesOffset + 6);
                entry.GeneralPurposeBitFlag = ByteArrayToShort(byteArray, entriesOffset + 8);
 
+               entry.CompressionMethod = ByteArrayToShort(byteArray, entriesOffset + 10);
+               entry.FileLastModification = ByteArrayToInt(byteArray, entriesOffset + 12);
+               entry.CRC32 = ByteArrayToInt(byteArray, entriesOffset + 16);
+               entry.CompressedSize = ByteArrayToInt(byteArray, entriesOffset + 20);
+               entry.UncompressedSize = ByteArrayToInt(byteArray, entriesOffset + 24);
 
                this.EntryList.Add(entry);
             }
