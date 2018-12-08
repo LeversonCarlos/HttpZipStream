@@ -167,6 +167,54 @@ namespace System.IO.Compression
       }
 
 
+      public async Task ExtractEntries(List<HttpStreamZipEntry> entryList, Action<MemoryStream> resultCallback)
+      {
+         try
+         {
+            foreach (var entry in entryList)
+            { await this.ExtractEntries(entry, resultCallback); }
+         }
+         catch (Exception) { throw; }
+      }
+
+
+      public async Task ExtractEntries(HttpStreamZipEntry entry, Action<MemoryStream> resultCallback)
+      {
+         try
+         {
+
+            // MAKE A HTTP CALL USING THE RANGE HEADER
+            var rangeStart = entry.FileOffset;
+            var rangeFinish = entry.FileOffset + entry.CompressedSize;
+            this.httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(rangeStart, rangeFinish);
+            var byteArray = await httpClient.GetByteArrayAsync(this.httpUrl);
+
+            // LOCATE DATA BOUNDS
+            var fileSignature = ByteArrayToInt(byteArray, 0);
+            var fileNameLength = ByteArrayToShort(byteArray, 26); // (n)
+            var extraFieldLength = ByteArrayToShort(byteArray, 28); // (m)
+            var fileDataOffset = 30 + fileNameLength + extraFieldLength;
+            var fileDataSize = entry.CompressedSize - fileDataOffset;
+
+            // EXTRACT DATA BUFFER
+            var fileDataBuffer = new byte[fileDataSize];
+            Array.Copy(byteArray, fileDataOffset, fileDataBuffer, 0, fileDataSize);
+
+            /* STORED */
+            if (entry.CompressionMethod == 0)
+            {
+               var memoryStream = new MemoryStream(fileDataBuffer);
+               memoryStream.Position = 0;
+               resultCallback.Invoke(memoryStream);
+               return;
+            }
+
+            throw new NotSupportedException($"The compression method [{entry.CompressionMethod}] is not supported");
+         }
+         catch (Exception) { throw; }
+      }
+
+
       private static int ByteArrayToInt(byte[] byteArray, int pos)
       {
          return byteArray[pos + 0] | (byteArray[pos + 1] << 8) | (byteArray[pos + 2] << 16) | (byteArray[pos + 3] << 24);

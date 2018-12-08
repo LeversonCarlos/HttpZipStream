@@ -6,7 +6,7 @@ namespace System.IO.Compression
 {
    public class HttpStreamZipTest
    {
-      string httpUrl = "https://nbksiq.sn.files.1drv.com/y4mxC666kaizJK8ia95nl3gUuB8WKqXMBcnU7tGmXYhnTe0y6-PZDRAnQ0vmEXYG4RBvNypa-J_l-M5WM028Z3OxIXbs5epdmvrRcB7WtSFmqSvyU7kxqnAZWTGvm7F0F635-xH1LxbeAhqvrJjSvTovT4fhSSnlf69I6Nf5fMYO0IBGhLEiSGaNQVIfyiZkBnRKxZijGtIyznOUY3BLv6yTw/Blue%20Beetle%20%5B1967%5D%20%2301.cbz?download&psid=1";
+      string httpUrl = "https://nbksiq.sn.files.1drv.com/y4mb3XRulz2OcLKckOtAzTMseqZchltP7kuzfkMPee93wNSXAdKgqP5_c0U-4rqZnsMcTjpbN5Ojnw31N3GDYNKkj8A6P7VV3JaFuacLSZ5LLknkfX5GC1iOrf3YpkHwo2EsaSVwE7jcxs7Id8-BI97tZJ-V2vf5qb3hRPif0MG_mMdY0GjPu1kAt7xxfnxzlOWeBfzlEaBwKGFL-QL3NyFXw/Blue%20Beetle%20%5B1967%5D%20%2301.cbz?download&psid=1";
 
 
       [Fact]
@@ -50,8 +50,8 @@ namespace System.IO.Compression
 
 
       [Fact]
-      public async void ExampleStream_SmallerEntry_MustBe_0005_With_227kbytes()
-      { 
+      public async void ExampleStream_SmallerEntryExtraction_MustResult_MemoryStream_With_227kbytes()
+      {
          using (var streamZip = new System.IO.Compression.HttpStreamZip(httpUrl))
          {
             var contentLength = await streamZip.GetContentLengthAsync();
@@ -60,8 +60,12 @@ namespace System.IO.Compression
                .OrderBy(x => x.CompressedSize)
                .Take(1)
                .FirstOrDefault();
-            Assert.Equal("Blue Beetle [1967] #01 - 0035.jpg", smallerEntry.FileName);
-            Assert.Equal(232723, smallerEntry.CompressedSize);
+            long memoryStreamLength = 0;
+            await streamZip.ExtractEntries(smallerEntry, (MemoryStream memoryStream) =>
+            {
+               memoryStreamLength = memoryStream.Length;
+            });
+            Assert.Equal(232660, memoryStreamLength);
          }
       }
 
