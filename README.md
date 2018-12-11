@@ -11,11 +11,11 @@ dotnet add package HttpZipStream
 Extracting just the first entry from a remote zip archive: 
 ```csharp 
    var httpUrl = "http://MyRemoteFile.zip"; 
-   using (var zipStream = new HttpZipStream(httpUrl)) 
+   using (var zipStream = new System.IO.Compression.HttpZipStream(httpUrl)) 
    { 
       var entryList = await zipStream.GetEntries(); 
       var entry = entryList.FirstOrDefault(); 
-      await zipStream.Extract(entry, (MemoryStream entryStream) => { 
+      await zipStream.Extract(entry, (entryStream) => { 
          /* store the entry stream where you like */
       }); 
    }

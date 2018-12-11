@@ -24,7 +24,7 @@ namespace System.IO.Compression
 
 
       public long ContentLength { get; private set; } = -1;
-      // public void SetContentLength(long value) { this.ContentLength = value; }
+      public void SetContentLength(long value) { this.ContentLength = value; }
       public async Task<long> GetContentLengthAsync()
       {
          try
@@ -98,7 +98,7 @@ namespace System.IO.Compression
       }
 
 
-      public async Task<List<HttpZipEntry>> GetEntries()
+      public async Task<List<HttpZipEntry>> GetEntriesAsync()
       {
          try
          {
@@ -167,18 +167,18 @@ namespace System.IO.Compression
       }
 
 
-      public async Task Extract(List<HttpZipEntry> entryList, Action<MemoryStream> resultCallback)
+      public async Task ExtractAsync(List<HttpZipEntry> entryList, Action<MemoryStream> resultCallback)
       {
          try
          {
             foreach (var entry in entryList)
-            { await this.Extract(entry, resultCallback); }
+            { await this.ExtractAsync(entry, resultCallback); }
          }
          catch (Exception) { throw; }
       }
 
 
-      public async Task Extract(HttpZipEntry entry, Action<MemoryStream> resultCallback)
+      public async Task ExtractAsync(HttpZipEntry entry, Action<MemoryStream> resultCallback)
       {
          try
          {
