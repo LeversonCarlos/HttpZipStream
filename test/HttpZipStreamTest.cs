@@ -26,7 +26,7 @@ namespace System.IO.Compression
          using (var streamZip = new HttpZipStream(httpUrl))
          {
             var contentLength = await streamZip.GetContentLengthAsync();
-            var entryList = await streamZip.GetEntries();
+            var entryList = await streamZip.GetEntriesAsync();
             Assert.Equal(36, entryList.Count);
          }
       }
@@ -38,7 +38,7 @@ namespace System.IO.Compression
          using (var streamZip = new HttpZipStream(httpUrl))
          {
             var contentLength = await streamZip.GetContentLengthAsync();
-            var entryList = await streamZip.GetEntries();
+            var entryList = await streamZip.GetEntriesAsync();
             var largerEntry = entryList
                .OrderByDescending(x => x.CompressedSize)
                .Take(1)
@@ -55,13 +55,13 @@ namespace System.IO.Compression
          using (var streamZip = new HttpZipStream(httpUrl))
          {
             var contentLength = await streamZip.GetContentLengthAsync();
-            var entryList = await streamZip.GetEntries();
+            var entryList = await streamZip.GetEntriesAsync();
             var smallerEntry = entryList
                .OrderBy(x => x.CompressedSize)
                .Take(1)
                .FirstOrDefault();
             long memoryStreamLength = 0;
-            await streamZip.Extract(smallerEntry, (MemoryStream memoryStream) =>
+            await streamZip.ExtractAsync(smallerEntry, (MemoryStream memoryStream) =>
             {
                memoryStreamLength = memoryStream.Length;
             });
