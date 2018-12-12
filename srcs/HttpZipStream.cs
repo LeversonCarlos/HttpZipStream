@@ -24,7 +24,12 @@ namespace System.IO.Compression
 
 
       public long ContentLength { get; private set; } = -1;
+
+      /// <summary>
+      /// Manually setting the content length is only recommended if you truly know what your doing. This may increase loading time but could also invalidate the requests.
+      /// </summary>
       public void SetContentLength(long value) { this.ContentLength = value; }
+
       public async Task<long> GetContentLengthAsync()
       {
          try

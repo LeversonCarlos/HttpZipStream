@@ -26,6 +26,13 @@ Extracting just the first entry from a remote zip archive:
 * [xUnit](https://xunit.github.io)
 * [vsCode](https://github.com/Microsoft/vscode) 
 
+## Changelog
+### v0.1.8
+* Proper name convention for async methods
+
+### v0.1.9
+* Some minor documentation adjust
+
 ## Authors
 * [Leverson Carlos](https://github.com/LeversonCarlos). 
 
