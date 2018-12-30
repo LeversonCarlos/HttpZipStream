@@ -253,7 +253,7 @@ namespace System.IO.Compression
       {
          if (!this.LeaveHttpClientOpen) { this.httpClient.Dispose(); this.httpClient = null; }
          this.directoryData = null;
-         this.ContentLength = 0;
+         this.ContentLength = -1;
       }
 
 
