@@ -2,13 +2,31 @@
 
    <PropertyGroup>
       <TargetFramework>netstandard2.0</TargetFramework>
+      <Configurations>Debug;Release</Configurations>
+   </PropertyGroup>
+
+   <PropertyGroup>
       <PackageId>HttpZipStream</PackageId>
-      <Version>0.1.9</Version>
+      <BuildVersion>0</BuildVersion>
+      <Version>0.1.$(BuildVersion)</Version>
       <Description>A simple library to extract specific entries from a remote http zip archive without the need to download the entire file</Description>
       <Authors>Leverson Carlos;lcjohnny</Authors>
       <Company>Leverson Carlos</Company>    
       <RepositoryUrl>https://github.com/LeversonCarlos/HttpZipStream</RepositoryUrl>
-      <PackageTags>httpzip remotezip zipstream httpzipstream</PackageTags>
+      <DefaultLanguage>en</DefaultLanguage>
+      <PackageTags>httpzip remotezip zipstream httpzipstream http zip</PackageTags>
+      <PackageLicenseUrl>https://raw.githubusercontent.com/LeversonCarlos/HttpZipStream/working/LICENSE</PackageLicenseUrl>
+      <IncludeSymbols>false</IncludeSymbols>
+      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+   </PropertyGroup>
+
+   <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+      <DebugType>full</DebugType>
+      <DebugSymbols>true</DebugSymbols>
+   </PropertyGroup>
+
+   <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+      <DebugType>pdbonly</DebugType>
    </PropertyGroup>
 
    <ItemGroup>
