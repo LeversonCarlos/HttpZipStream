@@ -46,4 +46,4 @@ Preparing projects to be build, packed and deploy by the server.
 * [Leverson Carlos](https://github.com/LeversonCarlos) 
 
 ## License
-GNU General Public License - see the [LICENSE](LICENSE) file for details.
+MIT License - see the [LICENSE](LICENSE) file for details.

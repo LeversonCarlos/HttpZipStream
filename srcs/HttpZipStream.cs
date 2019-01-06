@@ -218,17 +218,17 @@ namespace System.IO.Compression
             /* DEFLATED */
             if (entry.CompressionMethod == 8)
             {
-               var resultStream = new MemoryStream();
                using (var memoryStream = new MemoryStream(fileDataBuffer))
                {
                   using (var deflateStream = new System.IO.Compression.DeflateStream(memoryStream, CompressionMode.Decompress))
                   {
+                     var resultStream = new MemoryStream(); //entry.UncompressedSize - fileDataOffset
                      await deflateStream.CopyToAsync(resultStream);
+                     resultStream.Position = 0;
+                     resultCallback.Invoke(resultStream);
+                     return;
                   }
                }
-               resultStream.Position = 0;
-               resultCallback.Invoke(resultStream);
-               return;
             }
 
             // NOT SUPPORTED COMPRESSION METHOD
