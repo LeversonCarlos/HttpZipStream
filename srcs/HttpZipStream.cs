@@ -142,7 +142,7 @@ namespace System.IO.Compression
 
                entry.DiskNumberWhereFileStarts = ByteArrayToShort(byteArray, entriesOffset + 34);
                entry.InternalFileAttributes = ByteArrayToShort(byteArray, entriesOffset + 36);
-               entry.ExternalFileAttributes = ByteArrayToShort(byteArray, entriesOffset + 38);
+               entry.ExternalFileAttributes = ByteArrayToInt(byteArray, entriesOffset + 38);
                entry.FileOffset = ByteArrayToInt(byteArray, entriesOffset + 42);
 
                var fileNameStart = entriesOffset + 46;
@@ -172,6 +172,7 @@ namespace System.IO.Compression
       }
 
 
+      [Obsolete]
       public async Task ExtractAsync(List<HttpZipEntry> entryList, Action<MemoryStream> resultCallback)
       {
          try
@@ -182,8 +183,20 @@ namespace System.IO.Compression
          catch (Exception) { throw; }
       }
 
-
       public async Task ExtractAsync(HttpZipEntry entry, Action<MemoryStream> resultCallback)
+      {
+         try
+         {
+            var fileDataBuffer = await this.ExtractAsync(entry);
+            var resultStream = new MemoryStream(fileDataBuffer);
+            resultStream.Position = 0;
+            resultCallback.Invoke(resultStream);
+            return;
+         }
+         catch (Exception) { throw; }
+      }
+
+      public async Task<byte[]> ExtractAsync(HttpZipEntry entry)
       {
          try
          {
@@ -197,6 +210,11 @@ namespace System.IO.Compression
             // LOCATE DATA BOUNDS
             // https://en.wikipedia.org/wiki/Zip_(file_format)#Local_file_header
             var fileSignature = ByteArrayToInt(byteArray, 0);
+            var bitFlag = ByteArrayToShort(byteArray, 6);
+            var compressionMethod = ByteArrayToShort(byteArray, 8);
+            var crc = ByteArrayToInt(byteArray, 14);
+            var compressedSize = ByteArrayToInt(byteArray, 18);
+            var uncompressedSize = ByteArrayToInt(byteArray, 22);
             var fileNameLength = ByteArrayToShort(byteArray, 26); // (n)
             var extraFieldLength = ByteArrayToShort(byteArray, 28); // (m)
             var fileDataOffset = 30 + fileNameLength + extraFieldLength;
@@ -205,30 +223,22 @@ namespace System.IO.Compression
             // EXTRACT DATA BUFFER
             var fileDataBuffer = new byte[fileDataSize];
             Array.Copy(byteArray, fileDataOffset, fileDataBuffer, 0, fileDataSize);
+            Array.Clear(byteArray, 0, byteArray.Length);
+            byteArray = null;
 
             /* STORED */
             if (entry.CompressionMethod == 0)
-            {
-               var resultStream = new MemoryStream(fileDataBuffer);
-               resultStream.Position = 0;
-               resultCallback.Invoke(resultStream);
-               return;
-            }
+            { return fileDataBuffer; }
 
             /* DEFLATED */
             if (entry.CompressionMethod == 8)
             {
-               using (var memoryStream = new MemoryStream(fileDataBuffer))
+               var deflatedArray = new byte[entry.UncompressedSize];
+               using (var deflateStream = new System.IO.Compression.DeflateStream(new MemoryStream(fileDataBuffer), CompressionMode.Decompress))
                {
-                  using (var deflateStream = new System.IO.Compression.DeflateStream(memoryStream, CompressionMode.Decompress))
-                  {
-                     var resultStream = new MemoryStream(); //entry.UncompressedSize - fileDataOffset
-                     await deflateStream.CopyToAsync(resultStream);
-                     resultStream.Position = 0;
-                     resultCallback.Invoke(resultStream);
-                     return;
-                  }
+                  await deflateStream.ReadAsync(deflatedArray, 0, deflatedArray.Length);
                }
+               return deflatedArray;
             }
 
             // NOT SUPPORTED COMPRESSION METHOD
