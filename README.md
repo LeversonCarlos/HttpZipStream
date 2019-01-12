@@ -40,6 +40,7 @@ Extracting just the first entry from a remote zip archive:
 Some minor documentation adjust.  
 Proper name convention for async methods.  
 Preparing projects to be build, packed and deploy by the server.  
+### v0.2.*
 Implementing a ExtractAsync overload that results just the entry content byte array 
 
 ## Authors
