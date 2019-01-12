@@ -27,7 +27,7 @@ namespace System.IO.Compression
 
       internal short DiskNumberWhereFileStarts { get; set; }
       internal short InternalFileAttributes { get; set; }
-      internal short ExternalFileAttributes { get; set; }
+      internal int ExternalFileAttributes { get; set; }
 
       internal int FileOffset { get; set; }
       public string FileName { get; internal set; }

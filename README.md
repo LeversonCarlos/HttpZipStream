@@ -24,9 +24,8 @@ Extracting just the first entry from a remote zip archive:
    { 
       var entryList = await zipStream.GetEntriesAsync(); 
       var entry = entryList.FirstOrDefault(); 
-      await zipStream.ExtractAsync(entry, (entryStream) => { 
-         /* store the entry stream where you like */
-      }); 
+      byte[] entryContent = await zipStream.ExtractAsync(entry);
+      /* do what you want with the entry content */
    }
 ``` 
 
@@ -41,9 +40,10 @@ Extracting just the first entry from a remote zip archive:
 Some minor documentation adjust.  
 Proper name convention for async methods.  
 Preparing projects to be build, packed and deploy by the server.  
+Implementing a ExtractAsync overload that results just the entry content byte array 
 
 ## Authors
 * [Leverson Carlos](https://github.com/LeversonCarlos) 
 
 ## License
-MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see the [LICENSE](LICENSE) file for details
