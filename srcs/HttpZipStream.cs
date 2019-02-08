@@ -85,9 +85,9 @@ namespace System.IO.Compression
                       byteArray[pos + 2] == 0x05 &&
                       byteArray[pos + 3] == 0x06)
                   {
-                     this.directoryData.Size = ByteArrayToInt(byteArray, pos + 12);
-                     this.directoryData.Offset = ByteArrayToInt(byteArray, pos + 16);
-                     this.directoryData.Entries = ByteArrayToShort(byteArray, pos + 10);
+                     this.directoryData.Size = BitConverter.ToInt32(byteArray, pos + 12);
+                     this.directoryData.Offset = BitConverter.ToInt32(byteArray, pos + 16);
+                     this.directoryData.Entries = BitConverter.ToInt16(byteArray, pos + 10);
                      return true;
                   }
                   else { pos--; }
@@ -125,25 +125,25 @@ namespace System.IO.Compression
                var entry = new HttpZipEntry(entryIndex);
                // https://en.wikipedia.org/wiki/Zip_(file_format)#Local_file_header
 
-               entry.Signature = ByteArrayToInt(byteArray, entriesOffset + 0); // 0x04034b50
-               entry.VersionMadeBy = ByteArrayToShort(byteArray, entriesOffset + 4);
-               entry.MinimumVersionNeededToExtract = ByteArrayToShort(byteArray, entriesOffset + 6);
-               entry.GeneralPurposeBitFlag = ByteArrayToShort(byteArray, entriesOffset + 8);
+               entry.Signature = BitConverter.ToInt32(byteArray, entriesOffset + 0); // 0x04034b50
+               entry.VersionMadeBy = BitConverter.ToInt16(byteArray, entriesOffset + 4);
+               entry.MinimumVersionNeededToExtract = BitConverter.ToInt16(byteArray, entriesOffset + 6);
+               entry.GeneralPurposeBitFlag = BitConverter.ToInt16(byteArray, entriesOffset + 8);
 
-               entry.CompressionMethod = ByteArrayToShort(byteArray, entriesOffset + 10);
-               entry.FileLastModification = ByteArrayToInt(byteArray, entriesOffset + 12);
-               entry.CRC32 = ByteArrayToInt(byteArray, entriesOffset + 16);
-               entry.CompressedSize = ByteArrayToInt(byteArray, entriesOffset + 20);
-               entry.UncompressedSize = ByteArrayToInt(byteArray, entriesOffset + 24);
+               entry.CompressionMethod = BitConverter.ToInt16(byteArray, entriesOffset + 10);
+               entry.FileLastModification = BitConverter.ToInt32(byteArray, entriesOffset + 12);
+               entry.CRC32 = BitConverter.ToInt32(byteArray, entriesOffset + 16);
+               entry.CompressedSize = BitConverter.ToInt32(byteArray, entriesOffset + 20);
+               entry.UncompressedSize = BitConverter.ToInt32(byteArray, entriesOffset + 24);
 
-               entry.FileNameLength = ByteArrayToShort(byteArray, entriesOffset + 28); // (n)
-               entry.ExtraFieldLength = ByteArrayToShort(byteArray, entriesOffset + 30); // (m)
-               entry.FileCommentLength = ByteArrayToShort(byteArray, entriesOffset + 32); // (k)
+               entry.FileNameLength = BitConverter.ToInt16(byteArray, entriesOffset + 28); // (n)
+               entry.ExtraFieldLength = BitConverter.ToInt16(byteArray, entriesOffset + 30); // (m)
+               entry.FileCommentLength = BitConverter.ToInt16(byteArray, entriesOffset + 32); // (k)
 
-               entry.DiskNumberWhereFileStarts = ByteArrayToShort(byteArray, entriesOffset + 34);
-               entry.InternalFileAttributes = ByteArrayToShort(byteArray, entriesOffset + 36);
-               entry.ExternalFileAttributes = ByteArrayToInt(byteArray, entriesOffset + 38);
-               entry.FileOffset = ByteArrayToInt(byteArray, entriesOffset + 42);
+               entry.DiskNumberWhereFileStarts = BitConverter.ToInt16(byteArray, entriesOffset + 34);
+               entry.InternalFileAttributes = BitConverter.ToInt16(byteArray, entriesOffset + 36);
+               entry.ExternalFileAttributes = BitConverter.ToInt32(byteArray, entriesOffset + 38);
+               entry.FileOffset = BitConverter.ToInt32(byteArray, entriesOffset + 42);               
 
                var fileNameStart = entriesOffset + 46;
                var fileNameBuffer = new byte[entry.FileNameLength];
@@ -159,7 +159,7 @@ namespace System.IO.Compression
                var fileCommentBuffer = new byte[entry.FileCommentLength];
                Array.Copy(byteArray, fileCommentStart, fileCommentBuffer, 0, entry.FileCommentLength);
                entry.FileComment = System.Text.Encoding.Default.GetString(fileCommentBuffer);
-
+               
                entryList.Add(entry);
                entriesOffset = fileCommentStart + entry.FileCommentLength;
             }
@@ -202,27 +202,28 @@ namespace System.IO.Compression
          {
 
             // MAKE A HTTP CALL USING THE RANGE HEADER
+            var fileHeaderLength = 30 + entry.FileNameLength + entry.ExtraFieldLength;
             var rangeStart = entry.FileOffset;
-            var rangeFinish = entry.FileOffset + entry.CompressedSize;
+            var rangeFinish = entry.FileOffset + fileHeaderLength + entry.CompressedSize;
             this.httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(rangeStart, rangeFinish);
             var byteArray = await httpClient.GetByteArrayAsync(this.httpUrl);
 
             // LOCATE DATA BOUNDS
             // https://en.wikipedia.org/wiki/Zip_(file_format)#Local_file_header
-            var fileSignature = ByteArrayToInt(byteArray, 0);
-            var bitFlag = ByteArrayToShort(byteArray, 6);
-            var compressionMethod = ByteArrayToShort(byteArray, 8);
-            var crc = ByteArrayToInt(byteArray, 14);
-            var compressedSize = ByteArrayToInt(byteArray, 18);
-            var uncompressedSize = ByteArrayToInt(byteArray, 22);
-            var fileNameLength = ByteArrayToShort(byteArray, 26); // (n)
-            var extraFieldLength = ByteArrayToShort(byteArray, 28); // (m)
+            var fileSignature = BitConverter.ToInt32(byteArray, 0);
+            var bitFlag = BitConverter.ToInt16(byteArray, 6);
+            var compressionMethod = BitConverter.ToInt16(byteArray, 8);
+            var crc = BitConverter.ToInt32(byteArray, 14);
+            var compressedSize = BitConverter.ToInt32(byteArray, 18);
+            var uncompressedSize = BitConverter.ToInt32(byteArray, 22);
+            var fileNameLength = BitConverter.ToInt16(byteArray, 26); // (n)
+            var extraFieldLength = BitConverter.ToInt16(byteArray, 28); // (m)
             var fileDataOffset = 30 + fileNameLength + extraFieldLength;
-            var fileDataSize = entry.CompressedSize - fileDataOffset;
+            var fileDataSize = entry.CompressedSize;
 
             // EXTRACT DATA BUFFER
             var fileDataBuffer = new byte[fileDataSize];
-            Array.Copy(byteArray, fileDataOffset, fileDataBuffer, 0, fileDataSize);
+            Array.Copy(byteArray, fileDataOffset, fileDataBuffer, 0, fileDataSize);            
             Array.Clear(byteArray, 0, byteArray.Length);
             byteArray = null;
 
@@ -232,11 +233,35 @@ namespace System.IO.Compression
 
             /* DEFLATED */
             if (entry.CompressionMethod == 8)
-            {
+            {           
                var deflatedArray = new byte[entry.UncompressedSize];
-               using (var deflateStream = new System.IO.Compression.DeflateStream(new MemoryStream(fileDataBuffer), CompressionMode.Decompress))
+               using (var compressedStream = new MemoryStream(fileDataBuffer))
                {
-                  await deflateStream.ReadAsync(deflatedArray, 0, deflatedArray.Length);
+
+                  using (var deflateStream = new System.IO.Compression.DeflateStream(compressedStream, CompressionMode.Decompress))
+                  {
+                     await deflateStream.ReadAsync(deflatedArray, 0, deflatedArray.Length);
+                  }
+
+                  /*
+                  using (var deflatedStream = new MemoryStream())
+                  {
+                     var deflater = new System.IO.Compression.DeflateStream(compressedStream, CompressionMode.Decompress, true);                     
+
+                     byte[] buffer = new byte[1024];
+                     var bytesPending = entry.UncompressedSize;
+                     while (bytesPending > 0)
+                     {
+                        var bytesRead = deflater.Read(buffer, 0, (int)Math.Min(bytesPending, buffer.Length));
+                        deflatedStream.Write(buffer, 0, bytesRead);
+                        bytesPending -= (uint)bytesRead;
+                        if (bytesRead == 0) { break; }
+                     }                    
+
+                     deflatedArray = deflatedStream.ToArray();
+                  }
+                   */
+
                }
                return deflatedArray;
             }
@@ -245,17 +270,6 @@ namespace System.IO.Compression
             throw new NotSupportedException($"The compression method [{entry.CompressionMethod}] is not supported");
          }
          catch (Exception) { throw; }
-      }
-
-
-      private static int ByteArrayToInt(byte[] byteArray, int pos)
-      {
-         return byteArray[pos + 0] | (byteArray[pos + 1] << 8) | (byteArray[pos + 2] << 16) | (byteArray[pos + 3] << 24);
-      }
-
-      private static short ByteArrayToShort(byte[] byteArray, int pos)
-      {
-         return (short)(byteArray[pos + 0] | (byteArray[pos + 1] << 8));
       }
 
 
