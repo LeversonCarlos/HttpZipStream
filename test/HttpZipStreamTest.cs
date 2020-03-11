@@ -65,7 +65,7 @@ namespace System.IO.Compression
             {
                memoryStreamLength = memoryStream.Length;
             });
-            Assert.Equal(232660, memoryStreamLength);
+            Assert.Equal(232723, memoryStreamLength);
          }
       }
 
