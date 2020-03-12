@@ -37,12 +37,15 @@ Extracting just the first entry from a remote zip archive:
 
 ## Changelog
 ### v0.1.*
-Some minor documentation adjust.  
-Proper name convention for async methods.  
-Preparing projects to be build, packed and deploy by the server.  
+- Some minor documentation adjust.  
+- Proper name convention for async methods.  
+- Preparing projects to be build, packed and deploy by the server.  
 ### v0.2.*
-Implementing a ExtractAsync overload that results just the entry content byte array.  
-BUG #13: Some entries are not deflate correctly.  
+- Implementing a ExtractAsync overload that results just the entry content byte array.  
+- BUG #13: Some entries are not deflate correctly.  
+### v0.3.*
+- Upgrading dotnet version to 3.1
+
 
 ## Authors
 * [Leverson Carlos](https://github.com/LeversonCarlos) 

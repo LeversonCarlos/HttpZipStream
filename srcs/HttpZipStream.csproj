@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
    <PropertyGroup>
-      <TargetFramework>netstandard2.0</TargetFramework>
+      <TargetFramework>netcoreapp3.1</TargetFramework>
       <Configurations>Debug;Release</Configurations>
    </PropertyGroup>
 
    <PropertyGroup>
       <PackageId>HttpZipStream</PackageId>
       <BuildVersion>0</BuildVersion>
-      <Version>0.2.$(BuildVersion)</Version>
+      <Version>0.3.$(BuildVersion)</Version>
       <Description>A simple library to extract specific entries from a remote http zip archive without the need to download the entire file</Description>
       <Authors>Leverson Carlos;lcjohnny</Authors>
       <Company>Leverson Carlos</Company>    
@@ -28,10 +28,5 @@
    <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
       <DebugType>pdbonly</DebugType>
    </PropertyGroup>
-
-   <ItemGroup>
-      <PackageReference Include="System.IO.Compression" Version="4.3.0" />
-      <PackageReference Include="System.Net.Http" Version="4.3.4" />
-   </ItemGroup>
 
 </Project>
