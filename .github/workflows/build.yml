@@ -8,11 +8,12 @@ on:
 
 jobs:
   build:
-
+    name: Build Package
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source repository
+    
+      - name: Checkout Source Repository
         uses: actions/checkout@v2
         
       - name: Setup .NET Core
@@ -25,14 +26,36 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"          
                     
-      - name: Build and pack assemblies
+      - name: Build and Pack Assemblies
         run: dotnet pack ./srcs --configuration Release /p:BuildVersion=${{ github.run_number }} --output ./srcs/bin/Publish
           
-      - name: Store artifacts
+      - name: Store Artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
           name: artifacts
           path: ./srcs/bin/Publish 
+          
+  deploy: 
+    name: Publish Package
+    runs-on: ubuntu-latest
+    
+    steps:
+    
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+          
+      #- name: Setup NuGet
+      #  uses: NuGet/setup-nuget@v1.0.2
+      #  with:
+      #    nuget-version: latest
+      #    nuget-api-key: ${{ secrets.NUGET_TOKEN_FOR_GITHUB }}
+    
+      - name: Retrieve Artifacts
+        uses: actions/download-artifact@v1.0.0
+        with:
+          name: artifacts
         
-      - name: Publish artifact to nuget
-        run: dotnet nuget push ./srcs/bin/Publish/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_FOR_GITHUB }} --skip-duplicate --no-symbols true
+      - name: Publish Artifact to NuGet
+        run: dotnet nuget push artifacts/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_FOR_GITHUB }} --source https://nuget.org --skip-duplicate --no-symbols true 
