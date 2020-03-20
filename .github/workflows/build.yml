@@ -3,9 +3,7 @@ name: Release
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
+  
 jobs:
   build:
     name: Build Package
@@ -46,13 +44,7 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.101
-          
-      #- name: Setup NuGet
-      #  uses: NuGet/setup-nuget@v1.0.2
-      #  with:
-      #    nuget-version: latest
-      #    nuget-api-key: ${{ secrets.NUGET_TOKEN_FOR_GITHUB }}
-    
+              
       - name: Retrieve Artifacts
         uses: actions/download-artifact@v1.0.0
         with:
