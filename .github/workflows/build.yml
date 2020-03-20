@@ -36,6 +36,7 @@ jobs:
           path: ./srcs/bin/Publish 
           
   deploy: 
+    needs: [build]
     name: Publish Package
     runs-on: ubuntu-latest
     
