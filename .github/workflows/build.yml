@@ -21,4 +21,4 @@ jobs:
           dotnet-version: 3.1.101
           
       - name: Build and pack assemblies
-        run: dotnet build --configuration Release /p:BuildVersion=0320 | dotnet pack --no-build --output publish
+        run: cd srcs | dotnet build --configuration Release /p:BuildVersion=0320 | dotnet pack --no-build --output publish
