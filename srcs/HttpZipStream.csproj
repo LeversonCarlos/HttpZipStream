@@ -8,14 +8,14 @@
    <PropertyGroup>
       <PackageId>HttpZipStream</PackageId>
       <BuildVersion>0</BuildVersion>
-      <Version>0.3.$(BuildVersion)</Version>
+      <Version>0.4.$(BuildVersion)</Version>
       <Description>A simple library to extract specific entries from a remote http zip archive without the need to download the entire file</Description>
       <Authors>Leverson Carlos;lcjohnny</Authors>
       <Company>Leverson Carlos</Company>    
       <RepositoryUrl>https://github.com/LeversonCarlos/HttpZipStream</RepositoryUrl>
       <DefaultLanguage>en</DefaultLanguage>
       <PackageTags>httpzip remotezip zipstream httpzipstream http zip</PackageTags>
-      <PackageLicenseUrl>https://raw.githubusercontent.com/LeversonCarlos/HttpZipStream/working/LICENSE</PackageLicenseUrl>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <IncludeSymbols>false</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
    </PropertyGroup>

@@ -1,5 +1,6 @@
 # HttpZipStream 
-A simple library to extract specific entries from a remote http zip archive without the need to download the entire file. 
+A simple library to extract specific entries from a remote http zip archive without the need to download the entire file.  
+![Release](https://github.com/LeversonCarlos/HttpZipStream/workflows/Release/badge.svg)
 
 ## Understanding the magic
 When opening a zip archive using a remote url, the zip library will need to download the entire file to be able to read its contents. So if you had a 90 mega zipfile and wanted only a 100 kbyte file from within it, you will end doing the entire 90 mega download anyway.  
