@@ -15,7 +15,6 @@
       <RepositoryUrl>https://github.com/LeversonCarlos/HttpZipStream</RepositoryUrl>
       <DefaultLanguage>en</DefaultLanguage>
       <PackageTags>httpzip remotezip zipstream httpzipstream http zip</PackageTags>
-      <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <IncludeSymbols>false</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
