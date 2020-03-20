@@ -1,0 +1,22 @@
+name: Tests
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    name: Build Package
+    runs-on: ubuntu-latest
+
+    steps:
+    
+      - name: Checkout Source Repository
+        uses: actions/checkout@v2
+        
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+          
+      - name: Execute Tests
+        run: dotnet test ./test     
