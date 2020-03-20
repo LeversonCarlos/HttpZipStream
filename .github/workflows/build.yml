@@ -26,18 +26,15 @@ jobs:
         run: echo "$GITHUB_CONTEXT"          
                     
       - name: Build and pack assemblies
-        run: | 
-          cd srcs
-          dotnet build --configuration Release /p:BuildVersion=${{ github.run_number }}
-          dotnet pack --configuration Release --no-build --output publish
+        run: dotnet pack ./srcs --configuration Release /p:BuildVersion=${{ github.run_number }} --output ./srcs/bin/Publish
           
       - name: Store artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
           name: artifacts
-          path: srcs/publish 
+          path: ./srcs/bin/Publish 
         
       - name: Publish artifact to nuget
         env:
           NUGET_TOKEN_FOR_GITHUB: ${{ secrets.NUGET_TOKEN_FOR_GITHUB }}  
-        run: dotnet nuget push ./srcs/publish/*.nupkg --skip-duplicate --no-symbols true
+        run: dotnet nuget push ./srcs/bin/Publish/*.nupkg --skip-duplicate --no-symbols true
