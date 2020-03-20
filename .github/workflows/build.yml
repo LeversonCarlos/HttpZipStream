@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout source repository
         uses: actions/checkout@v2
         
       - name: Setup .NET Core
@@ -24,15 +24,20 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"          
-          
+                    
       - name: Build and pack assemblies
         run: | 
           cd srcs
           dotnet build --configuration Release /p:BuildVersion=${{ github.run_number }}
           dotnet pack --configuration Release --no-build --output publish
           
-      - name: Upload artifact
+      - name: Store artifacts
         uses: actions/upload-artifact@v1.0.0
         with:
           name: artifacts
-          path: srcs/publish          
+          path: srcs/publish 
+        
+      - name: Publish artifact to nuget
+        env:
+          NUGET_TOKEN_FOR_GITHUB: ${{ secrets.NUGET_TOKEN_FOR_GITHUB }}  
+        run: dotnet nuget push ./srcs/publish/*.nupkg --skip-duplicate --no-symbols true
