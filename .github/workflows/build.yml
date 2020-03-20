@@ -1,0 +1,24 @@
+name: Create new Release
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+          
+      - name: Build and pack assemblies
+        run: dotnet build --configuration Release /p:BuildVersion=0320 | dotnet pack --no-build --output publish
