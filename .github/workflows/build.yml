@@ -28,5 +28,11 @@ jobs:
       - name: Build and pack assemblies
         run: | 
           cd srcs
-          dotnet build --configuration Release /p:BuildVersion=0320
+          dotnet build --configuration Release /p:BuildVersion=${{ github.run_number }}
           dotnet pack --configuration Release --no-build --output publish
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: artifacts
+          path: srcs/publish          
