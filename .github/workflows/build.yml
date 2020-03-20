@@ -35,6 +35,4 @@ jobs:
           path: ./srcs/bin/Publish 
         
       - name: Publish artifact to nuget
-        env:
-          NUGET_TOKEN_FOR_GITHUB: ${{ secrets.NUGET_TOKEN_FOR_GITHUB }}  
-        run: dotnet nuget push ./srcs/bin/Publish/*.nupkg --skip-duplicate --no-symbols true
+        run: dotnet nuget push ./srcs/bin/Publish/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_FOR_GITHUB }} --skip-duplicate --no-symbols true
