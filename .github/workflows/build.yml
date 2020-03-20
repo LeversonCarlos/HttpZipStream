@@ -20,8 +20,13 @@ jobs:
         with:
           dotnet-version: 3.1.101
           
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"          
+          
       - name: Build and pack assemblies
         run: | 
           cd srcs
           dotnet build --configuration Release /p:BuildVersion=0320
-          dotnet pack --no-build --output publish
+          dotnet pack --configuration Release --no-build --output publish
